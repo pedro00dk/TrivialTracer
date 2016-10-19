@@ -44,17 +44,10 @@ public interface Model extends Copyable<Model> {
     /**
      * Returns aleatory surface points with uniform probability of the model.
      *
+     * @param count the number of points to get
      * @return points of the surface
      */
-    Vector3[] getSurfacePoints();
-
-    /**
-     * Returns aleatory surface points with uniform probability that can be visible from the received direction.
-     *
-     * @param direction the model direction (from the center of the model) were the points are visible
-     * @return visible points of the surface
-     */
-    Vector3[] getVisibleSurfacePoints(Vector3 direction);
+    Vector3[] getSurfacePoints(int count);
 
     /**
      * Gets the material of this model.
