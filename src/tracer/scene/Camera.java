@@ -31,7 +31,7 @@ public class Camera implements Copyable<Camera> {
     private Vector3 up;
 
     /**
-     * The vertical field of view of the camera in degrees. The horizontal fov depends of the frame aspect ratio.
+     * The vertical field of view of the camera in radians. The horizontal fov depends of the frame aspect ratio.
      */
     private float fovy;
 
@@ -51,9 +51,9 @@ public class Camera implements Copyable<Camera> {
     private static final Vector3 DEFAULT_UP = Vector3.up();
 
     /**
-     * The default vertical field of view of the camera (60 degrees).
+     * The default vertical field of view of the camera in radians.
      */
-    private static final float DEFAULT_FOVY = 60;
+    private static final float DEFAULT_FOVY = (float) Math.PI / 3; // 60 degrees
 
     /**
      * Creates a camera with the default position (0, 0, 0), the default target (0, 0, 1) and the default up (0, 1, 0)
@@ -114,8 +114,8 @@ public class Camera implements Copyable<Camera> {
         } else if (Vector3.sub(target, position).cos(up) == 1) {
             throw new IllegalArgumentException("The looking direction and up direction are the same.");
         }
-        if (fovy < 1 || fovy > 180) {
-            throw new IllegalArgumentException("The fovy should be between 1 and 180.");
+        if (fovy <= 0 || fovy >= (float) Math.PI) {
+            throw new IllegalArgumentException("The fovy should be between 0 and PI.");
         }
         // This class uses this copies to prevents errors (checked above)
         this.position = position.copy();
@@ -132,7 +132,7 @@ public class Camera implements Copyable<Camera> {
     /**
      * Returns a copy of the current position of the camera.
      *
-     * @return the position of the camera.
+     * @return the position of the camera
      */
     public Vector3 getPosition() {
         return position.copy();
@@ -141,7 +141,7 @@ public class Camera implements Copyable<Camera> {
     /**
      * Returns a copy of the current target of the camera.
      *
-     * @return the target of the camera.
+     * @return the target of the camera
      */
     public Vector3 getTarget() {
         return target.copy();
@@ -150,7 +150,7 @@ public class Camera implements Copyable<Camera> {
     /**
      * Returns a copy of the current up direction of the camera.
      *
-     * @return the up direction of the camera.
+     * @return the up direction of the camera
      */
     public Vector3 getUp() {
         return up.copy();
@@ -160,7 +160,7 @@ public class Camera implements Copyable<Camera> {
      * Returns the vertical field of view of the camera in radians. The horizontal field of view depends of the aspect
      * ratio.
      *
-     * @return the vertical field of view of the camera in radians.
+     * @return the vertical field of view of the camera in radians
      */
     public float getFovy() {
         return fovy;
@@ -169,7 +169,7 @@ public class Camera implements Copyable<Camera> {
     /**
      * Returns the direction that the camera is looking at.
      *
-     * @return the front direction of the camera.
+     * @return the front direction of the camera
      */
     public Vector3 getForwardDirection() {
         return Vector3.sub(target, position).normalize();
@@ -178,7 +178,7 @@ public class Camera implements Copyable<Camera> {
     /**
      * Returns the right side direction of the camera.
      *
-     * @return the right side direction of the camera.
+     * @return the right side direction of the camera
      */
     public Vector3 getRightDirection() {
         Vector3 frontDirection = Vector3.sub(target, position);
@@ -188,7 +188,7 @@ public class Camera implements Copyable<Camera> {
     /**
      * The real up direction of the camera, calculated using the position, target and up properties and directions.
      *
-     * @return the real up direction of the camera.
+     * @return the real up direction of the camera
      */
     public Vector3 getUpDirection() {
         Vector3 frontDirection = Vector3.sub(target, position);
@@ -199,7 +199,7 @@ public class Camera implements Copyable<Camera> {
     /**
      * Sets the received position in the camera.
      *
-     * @param position the new position of the camera.
+     * @param position the new position of the camera
      */
     public void setPosition(Vector3 position) {
         if (position.equals(target)) {
@@ -211,7 +211,7 @@ public class Camera implements Copyable<Camera> {
     /**
      * Sets the received target in the camera.
      *
-     * @param target the new target of the camera.
+     * @param target the new target of the camera
      */
     public void setTarget(Vector3 target) {
         if (position.equals(target)) {
@@ -225,7 +225,7 @@ public class Camera implements Copyable<Camera> {
     /**
      * Sets the received up direction in the camera.
      *
-     * @param up the new up direction of the camera.
+     * @param up the new up direction of the camera
      */
     public void setUp(Vector3 up) {
         if (up.sqrMag() == 0) {
@@ -242,8 +242,8 @@ public class Camera implements Copyable<Camera> {
      * @param fovy the new vertical field of view of the camera in radians, should be between 0 and PI / 2.
      */
     public void setFov(float fovy) {
-        if (fovy < 1 || fovy > 180) {
-            throw new IllegalArgumentException("The fovy should be between 1 and 180.");
+        if (fovy <= 0 || fovy >= (float) Math.PI) {
+            throw new IllegalArgumentException("The fovy should be between 0 and PI.");
         }
         this.fovy = fovy;
     }
@@ -265,9 +265,6 @@ public class Camera implements Copyable<Camera> {
             throw new IllegalArgumentException("The up magnitude should be greater than 0.");
         } else if (Vector3.sub(target, position).cos(up) == 1) {
             throw new IllegalArgumentException("The looking direction and up direction are the same.");
-        }
-        if (fovy < 1 || fovy > 180) {
-            throw new IllegalArgumentException("The fovy should be between 1 and 180.");
         }
         // This class uses this copies to prevents errors (checked above)
         this.position = position.copy();
