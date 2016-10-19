@@ -164,6 +164,6 @@ public class Sphere implements Model {
         }
         hitPoint = Vector3.orientate(ray.origin, ray.direction, minT);
         hitNormal = Vector3.sub(hitPoint, center).normalize();
-        return new Hit(ray, minT, hitPoint, hitNormal, material.getSurfaceColor());
+        return new Hit(this, ray, minT, hitPoint, hitNormal, material.getSurfaceColor());
     }
 }
