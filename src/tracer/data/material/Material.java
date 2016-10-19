@@ -126,8 +126,8 @@ public class Material implements Copyable<Material> {
      */
     public Material(Color surfaceColor, Color emissiveColor, boolean emissive, boolean fullyEmissive, float propagation,
                     float reflection, float shininess, float refraction) {
-        this.surfaceColor = Objects.requireNonNull(surfaceColor, "The surface color can not be null.").copy();
-        this.emissiveColor = Objects.requireNonNull(emissiveColor, "The emissive color ca not be null.").copy();
+        this.surfaceColor = Objects.requireNonNull(surfaceColor, "The surface color can not be null.");
+        this.emissiveColor = Objects.requireNonNull(emissiveColor, "The emissive color ca not be null.");
         this.emissive = emissive;
         this.fullyEmissive = fullyEmissive;
         this.propagation = TTMath.clamp01(propagation);
@@ -148,7 +148,7 @@ public class Material implements Copyable<Material> {
      * @return the surface color
      */
     public Color getSurfaceColor() {
-        return surfaceColor.copy();
+        return surfaceColor;
     }
 
     /**
@@ -157,7 +157,7 @@ public class Material implements Copyable<Material> {
      * @return the emissive color
      */
     public Color getEmissiveColor() {
-        return emissiveColor.copy();
+        return emissiveColor;
     }
 
     /**
@@ -212,5 +212,93 @@ public class Material implements Copyable<Material> {
      */
     public float getRefraction() {
         return refraction;
+    }
+
+    /**
+     * Sets the received surface color in this material.
+     *
+     * @param surfaceColor the new surface color
+     * @return this material modified
+     */
+    public Material setSurfaceColor(Color surfaceColor) {
+        this.surfaceColor = Objects.requireNonNull(surfaceColor, "The surface color can not be null.");
+        return this;
+    }
+
+    /**
+     * Sets the received emissive color in this material.
+     *
+     * @param emissiveColor the new emissive color
+     * @return this material modified
+     */
+    public Material setEmissiveColor(Color emissiveColor) {
+        this.emissiveColor = Objects.requireNonNull(emissiveColor, "The surface color can not be null.");
+        return this;
+    }
+
+    /**
+     * Sets the received emissive property in this material.
+     *
+     * @param emissive if this material is emissive
+     * @return this material modified
+     */
+    public Material setEmissive(boolean emissive) {
+        this.emissive = emissive;
+        return this;
+    }
+
+    /**
+     * Sets the received fully emissive property in this material.
+     *
+     * @param fullyEmissive if this material is fully emissive
+     * @return this material modified
+     */
+    public Material setFullyEmissive(boolean fullyEmissive) {
+        this.fullyEmissive = fullyEmissive;
+        return this;
+    }
+
+    /**
+     * Sets the received propagation property in this material.
+     *
+     * @param propagation the new propagation of the material (should be between 0 and 1)
+     * @return this material modified
+     */
+    public Material setPropagation(float propagation) {
+        this.propagation = TTMath.clamp01(propagation);
+        return this;
+    }
+
+    /**
+     * Sets the received reflection property in this material.
+     *
+     * @param reflection the new reflection of the material (should be between 0 and 1)
+     * @return this material modified
+     */
+    public Material setReflection(float reflection) {
+        this.reflection = TTMath.clamp01(reflection);
+        return this;
+    }
+
+    /**
+     * Sets the received shininess property in this material.
+     *
+     * @param shininess the new shininess of the material (should be between 0 and 1000)
+     * @return this material modified
+     */
+    public Material setShininess(float shininess) {
+        this.shininess = TTMath.clamp(shininess, 0, 1000);
+        return this;
+    }
+
+    /**
+     * Sets the received refraction property in this material.
+     *
+     * @param refraction the new refraction of the material (should be between 0 and 1)
+     * @return this material modified
+     */
+    public Material setRefraction(float refraction) {
+        this.refraction = TTMath.clamp01(refraction);
+        return this;
     }
 }

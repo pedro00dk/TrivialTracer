@@ -4,23 +4,20 @@ import tracer.data.material.Color;
 import tracer.model.Model;
 import tracer.util.Copyable;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
- * The scene to be rendered, contains all models and other scene info. This class implements the Iterable interface, to
- * get the models just iterate it.
+ * The scene to be rendered, contains all models and background color.
  *
  * @author Pedro Henrique
  */
-public class Scene implements Copyable<Scene>, Iterable<Model> {
+public class Scene implements Copyable<Scene> {
 
     /**
      * The models of the scene.
      */
-    private List<Model> models;
+    private Set<Model> models;
 
     /**
      * The background color of the scene.
@@ -38,8 +35,8 @@ public class Scene implements Copyable<Scene>, Iterable<Model> {
      *
      * @param models the models of the scene
      */
-    public Scene(Model... models) {
-        this(DEFAULT_BACKGROUND_COLOR, models);
+    public Scene(Set<Model> models) {
+        this(models, DEFAULT_BACKGROUND_COLOR);
     }
 
     /**
@@ -48,24 +45,23 @@ public class Scene implements Copyable<Scene>, Iterable<Model> {
      * @param models          the models of the scene
      * @param backgroundColor the background color of the scene
      */
-    public Scene(Color backgroundColor, Model... models) {
-        this.models = new ArrayList<>();
-        if (models != null) {
-            for (Model model : models) {
-                this.models.add(Objects.requireNonNull(model, "None of the received models can be null.").copy());
-            }
-        }
-        this.backgroundColor = Objects.requireNonNull(backgroundColor, "The background color can not be null.").copy();
+    public Scene(Set<Model> models, Color backgroundColor) {
+        this.models = Objects.requireNonNull(models, "The set of models can not be null.");
+        this.backgroundColor = Objects.requireNonNull(backgroundColor, "The background color can not be null.");
     }
 
     @Override
     public Scene copy() {
-        return new Scene(backgroundColor, (Model[]) models.toArray());
+        return new Scene(models, backgroundColor);
     }
 
-    @Override
-    public Iterator<Model> iterator() {
-        return models.iterator();
+    /**
+     * Returns the list of models.
+     *
+     * @return the list of models
+     */
+    public Set<Model> getModels() {
+        return models;
     }
 
     /**
@@ -75,5 +71,24 @@ public class Scene implements Copyable<Scene>, Iterable<Model> {
      */
     public Color getBackgroundColor() {
         return backgroundColor.copy();
+    }
+
+    /**
+     * Sets the received set of models
+     *
+     * @param models the set of models
+     */
+    public void setModels(Set<Model> models) {
+        this.models = Objects.requireNonNull(models, "The set of models can not be null.");
+    }
+
+    /**
+     * Sets the background color of the scene.
+     *
+     * @param backgroundColor the new background color
+     */
+    public Scene setBackgroundColor(Color backgroundColor) {
+        this.backgroundColor = backgroundColor;
+        return this;
     }
 }

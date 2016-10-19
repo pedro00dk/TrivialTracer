@@ -7,7 +7,8 @@ import tracer.data.trace.Ray;
 import tracer.util.Copyable;
 
 /**
- * The interface for any model type, specifies methods to check intersections with rays and get some properties.
+ * The interface for any model type, specifies methods to check intersections with rays and get some properties. Models
+ * should implement the {@link #equals(Object)} and {@link #hashCode()} methods.
  *
  * @author Pedro Henrique
  * @see Ray
@@ -15,6 +16,23 @@ import tracer.util.Copyable;
  * @see Material
  */
 public interface Model extends Copyable<Model> {
+
+    /**
+     * Models should implement the equals method.
+     *
+     * @param other the model to compare
+     * @return if they are equals
+     */
+    @Override
+    boolean equals(Object other);
+
+    /**
+     * Models should implement the equals method.
+     *
+     * @return the model hash code
+     */
+    @Override
+    int hashCode();
 
     /**
      * Returns the center point of the model.

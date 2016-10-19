@@ -89,12 +89,12 @@ public class Sphere implements Model {
      * @param material the sphere material
      */
     public Sphere(Vector3 center, float radius, Material material) {
-        this.center = Objects.requireNonNull(center, "The center can not be null.").copy();
+        this.center = Objects.requireNonNull(center, "The center can not be null.");
         if (radius <= 0) {
             throw new IllegalArgumentException("The radius should be greater than 0.");
         }
         this.radius = radius;
-        this.material = Objects.requireNonNull(material).copy();
+        this.material = Objects.requireNonNull(material);
     }
 
     @Override
@@ -104,7 +104,7 @@ public class Sphere implements Model {
 
     @Override
     public Vector3 getCenter() {
-        return center.copy();
+        return center;
     }
 
     @Override
@@ -119,7 +119,7 @@ public class Sphere implements Model {
 
     @Override
     public Material getMaterial() {
-        return material.copy();
+        return material;
     }
 
     @Override
