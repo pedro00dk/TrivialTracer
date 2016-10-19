@@ -24,14 +24,14 @@ public interface Model extends Copyable<Model> {
     Vector3 getCenter();
 
     /**
-     * Returns aleatory surface points of the model.
+     * Returns aleatory surface points with uniform probability of the model.
      *
      * @return points of the surface
      */
     Vector3[] getSurfacePoints();
 
     /**
-     * Returns aleatory surface points thats can be visible from the received direction.
+     * Returns aleatory surface points with uniform probability that can be visible from the received direction.
      *
      * @param direction the model direction (from the center of the model) were the points are visible
      * @return visible points of the surface
