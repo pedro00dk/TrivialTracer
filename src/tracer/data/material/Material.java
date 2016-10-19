@@ -29,6 +29,11 @@ public class Material implements Copyable<Material> {
     private boolean emissive;
 
     /**
+     * Indicates if the material is fully emissive.
+     */
+    private boolean fullyEmissive;
+
+    /**
      * The material light propagation, should be between 0 (absorbs all light) and 1 (reflects the self color).
      */
     private float propagation; // Kd -> diffuse coefficient
@@ -64,6 +69,11 @@ public class Material implements Copyable<Material> {
     private static final boolean DEFAULT_EMISSIVE = false;
 
     /**
+     * The default fully emissive info of the material.
+     */
+    private static final boolean DEFAULT_FULLY_EMISSIVE = false;
+
+    /**
      * The default propagation of the material.
      */
     private static final float DEFAULT_PROPAGATION = 1;
@@ -88,8 +98,8 @@ public class Material implements Copyable<Material> {
      * 0.15 of the light, low shininess (5) and opaque (refraction equals 0).
      */
     public Material() {
-        this(DEFAULT_SURFACE_COLOR, DEFAULT_EMISSIVE_COLOR, DEFAULT_EMISSIVE, DEFAULT_PROPAGATION, DEFAULT_REFLECTION,
-                DEFAULT_SHININESS, DEFAULT_REFRACTION);
+        this(DEFAULT_SURFACE_COLOR, DEFAULT_EMISSIVE_COLOR, DEFAULT_EMISSIVE, DEFAULT_FULLY_EMISSIVE,
+                DEFAULT_PROPAGATION, DEFAULT_REFLECTION, DEFAULT_SHININESS, DEFAULT_REFRACTION);
     }
 
     /**
@@ -98,8 +108,8 @@ public class Material implements Copyable<Material> {
      * @param surfaceColor the material surface color
      */
     public Material(Color surfaceColor) {
-        this(surfaceColor, DEFAULT_EMISSIVE_COLOR, DEFAULT_EMISSIVE, DEFAULT_PROPAGATION, DEFAULT_REFLECTION,
-                DEFAULT_SHININESS, DEFAULT_REFRACTION);
+        this(surfaceColor, DEFAULT_EMISSIVE_COLOR, DEFAULT_EMISSIVE, DEFAULT_FULLY_EMISSIVE, DEFAULT_PROPAGATION,
+                DEFAULT_REFLECTION, DEFAULT_SHININESS, DEFAULT_REFRACTION);
     }
 
     /**
@@ -107,16 +117,19 @@ public class Material implements Copyable<Material> {
      *
      * @param surfaceColor  the material surface color
      * @param emissiveColor the color that this material emits
+     * @param emissive      if the material is emissive
+     * @param fullyEmissive if the material is fully emissive
      * @param propagation   the propagation of the material (should be between than 0 and 1)
      * @param reflection    the reflection of the material (should be between than 0 and 1)
      * @param shininess     the shininess of the material (should be between than 0 and 1000)
      * @param refraction    the refraction of the material (should be between than 0 and 1)
      */
-    public Material(Color surfaceColor, Color emissiveColor, boolean emissive, float propagation, float reflection,
-                    float shininess, float refraction) {
+    public Material(Color surfaceColor, Color emissiveColor, boolean emissive, boolean fullyEmissive, float propagation,
+                    float reflection, float shininess, float refraction) {
         this.surfaceColor = Objects.requireNonNull(surfaceColor, "The surface color can not be null.").copy();
         this.emissiveColor = Objects.requireNonNull(emissiveColor, "The emissive color ca not be null.").copy();
         this.emissive = emissive;
+        this.fullyEmissive = fullyEmissive;
         this.propagation = TTMath.clamp01(propagation);
         this.reflection = TTMath.clamp01(reflection);
         this.shininess = TTMath.clamp(shininess, 0, 1000);
@@ -125,7 +138,8 @@ public class Material implements Copyable<Material> {
 
     @Override
     public Material copy() {
-        return new Material(surfaceColor, emissiveColor, emissive, propagation, reflection, shininess, refraction);
+        return new Material(surfaceColor, emissiveColor, emissive, fullyEmissive, propagation, reflection, shininess,
+                refraction);
     }
 
     /**
@@ -153,6 +167,15 @@ public class Material implements Copyable<Material> {
      */
     public boolean isEmissive() {
         return emissive;
+    }
+
+    /**
+     * Returns if this material is fully emissive.
+     *
+     * @return if this material is fully emissive
+     */
+    public boolean isFullyEmissive() {
+        return fullyEmissive;
     }
 
     /**
