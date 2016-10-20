@@ -1,7 +1,8 @@
 package tracer.scene;
 
 /**
- * The interface to display screens, defines the basic methods to load frames.
+ * The interface to display screens, defines the basic methods to load frames. The display implementations should
+ * contains the front buffer information.
  *
  * @author Pedro Henrique
  */

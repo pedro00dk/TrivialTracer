@@ -4,11 +4,12 @@ import tracer.data.material.Color;
 import tracer.model.Model;
 import tracer.util.Copyable;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
 /**
- * The scene to be rendered, contains all models and background color.
+ * The scene to be rendered, contains all {@link Model}s and background {@link Color}.
  *
  * @author Pedro Henrique
  */
@@ -27,7 +28,14 @@ public class Scene implements Copyable<Scene> {
     /**
      * The default background color.
      */
-    private static final Color DEFAULT_BACKGROUND_COLOR = Color.white().scale(0.1f);
+    private static final Color DEFAULT_BACKGROUND_COLOR = Color.darkGray();
+
+    /**
+     * Creates the scene with no models and default background color (dark gray)
+     */
+    public Scene() {
+        this(new HashSet<>(), DEFAULT_BACKGROUND_COLOR.copy());
+    }
 
     /**
      * Creates the scene with the received models, or none model if not receive and the default background color
@@ -37,6 +45,15 @@ public class Scene implements Copyable<Scene> {
      */
     public Scene(Set<Model> models) {
         this(models, DEFAULT_BACKGROUND_COLOR);
+    }
+
+    /**
+     * Creates the scene with no models and the received background color.
+     *
+     * @param backgroundColor the background color of the scene
+     */
+    public Scene(Color backgroundColor) {
+        this(new HashSet<>(), backgroundColor);
     }
 
     /**

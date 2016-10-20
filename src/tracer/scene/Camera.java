@@ -9,6 +9,9 @@ import java.util.Objects;
 /**
  * Represents a camera in the {@link Scene}, used to calculate and get the origin and direction of the rays to generate
  * the frame, too contains the vertical field of view.
+ * <p>
+ * Unlike other objects, the camera properties are copied from the received parameters, because of the relationship
+ * between the camera vectors.
  *
  * @author Pedro Henrique
  * @see Scene
