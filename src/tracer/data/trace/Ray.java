@@ -16,14 +16,14 @@ public class Ray {
     public Vector3 origin;
 
     /**
-     * The direction of this ray, is normalized in the ray initialization.
+     * The direction of this ray.
      */
     public Vector3 direction;
 
     /**
      * Creates a ray with the received origin and direction vectors, the vectors are not copied, the vector instances
-     * should be controlled by other application levels, it can provide possible performance improvements. Ensure the
-     * direction has the magnitude greater than 0.
+     * should be controlled by other application levels, it can provide possible performance improvements. The direction
+     * vector should be normalized.
      *
      * @param origin    the origin of this ray
      * @param direction the direction of this ray, the direction magnitude should be greater than 0

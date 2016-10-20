@@ -25,38 +25,38 @@ public class Hit {
     public Ray ray;
 
     /**
-     * The ray direction scalar, used to calculate the hitPoint.
+     * The ray distance to the hit point.
      */
-    public float rayDirectionScalar;
+    public float distance;
 
     /**
      * The point where the ray touches the model.
      */
-    public Vector3 hitPoint;
+    public Vector3 point;
 
     /**
-     * The model normal in the hit point (should be normalized).
+     * The model normal in the hit point.
      */
-    public Vector3 hitNormal;
+    public Vector3 normal;
 
     /**
      * The calculated color in the hit point.
      */
-    public Color hitColor;
+    public Color color;
 
     /**
-     * @param ray                the ray used.
-     * @param rayDirectionScalar the ray direction scalar to generate the hitPoint.
-     * @param hitPoint           the model hit point.
-     * @param hitNormal          the normal in the hit point (should be normalized).
-     * @param hitColor           the calculated color in the hit point.
+     * @param ray      the ray used.
+     * @param distance the ray direction scalar to generate the point.
+     * @param point    the model hit point.
+     * @param normal   the normal in the hit point (should be normalized).
+     * @param color    the calculated color in the hit point.
      */
-    public Hit(Model model, Ray ray, float rayDirectionScalar, Vector3 hitPoint, Vector3 hitNormal, Color hitColor) {
+    public Hit(Model model, Ray ray, float distance, Vector3 point, Vector3 normal, Color color) {
         this.model = model;
         this.ray = ray;
-        this.rayDirectionScalar = rayDirectionScalar;
-        this.hitPoint = hitPoint;
-        this.hitNormal = hitNormal;
-        this.hitColor = hitColor;
+        this.distance = distance;
+        this.point = point;
+        this.normal = normal;
+        this.color = color;
     }
 }
