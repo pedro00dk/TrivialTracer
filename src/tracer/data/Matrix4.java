@@ -26,7 +26,7 @@ public class Matrix4 implements Copyable<Matrix4> {
     /**
      * The array with the matrix components.
      */
-    private float data[];
+    private float[] data;
 
     /**
      * The size of the matrix data.
@@ -717,6 +717,46 @@ public class Matrix4 implements Copyable<Matrix4> {
      */
     public static Matrix4 rotation(float xAngle, float yAngle, float zAngle) {
         return compose(rotationZ(zAngle), rotationY(yAngle), rotationX(xAngle));
+    }
+
+    /**
+     * Returns a rotation matrix that rotates around the received vector by the received angle. If the axis is the null
+     * vector a zero matrix is returned.
+     *
+     * @param axis  the rotation axis
+     * @param angle the rotation angle
+     * @return the rotation matrix
+     */
+    public static Matrix4 rotationAround(Vector3 axis, float angle) {
+        float cos = (float) Math.cos(angle);
+        float sin = (float) Math.sin(angle);
+        float axisX2 = axis.x * axis.x;
+        float axisY2 = axis.y * axis.y;
+        float axisZ2 = axis.z * axis.z;
+        float axisXY = axis.x * axis.y;
+        float axisXZ = axis.x * axis.z;
+        float axisYZ = axis.y * axis.z;
+        return new Matrix4(
+                cos + axisX2 * (1 - cos), axisXY * (1 - cos) - axis.z * (1 - sin), axis.y * sin + axisXZ * (1 - cos), 0,
+                axis.z * sin + axisXY * (1 - cos), cos + axisY2 * (1 - cos), -axis.x * sin + axisYZ * (1 - cos), 0,
+                -axis.y * sin + axisXZ * (1 - cos), axis.x * sin + axisYZ * (1 - cos), cos + axisZ2 * (1 - cos), 0,
+                0, 0, 0, 1
+        );
+    }
+
+    /**
+     * Returns the rotation between two vectors.
+     * @param from the from direction vector
+     * @param to the to direction vector
+     * @return the rotation matrix
+     */
+    public static Matrix4 rotationBetween(Vector3 from, Vector3 to) {
+        if (from.dot(to) == 0) {
+            return identity();
+        }
+        Vector3 axis = Vector3.cross(from, to);
+        float angle = from.cos(to);
+        return rotationAround(axis, angle);
     }
 
     /**
