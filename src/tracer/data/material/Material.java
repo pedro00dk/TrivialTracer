@@ -6,8 +6,8 @@ import tracer.util.TTMath;
 import java.util.Objects;
 
 /**
- * This class represents a Material of a {@link tracer.model.Model}, contains the colors (surface and emissive),
- * propagation, reflection, shininess and refraction coefficients.
+ * This class represents a Material of a {@link tracer.model.Model}, contains the {@link Color}s (surface and emissive),
+ * propagation, reflection and refraction coefficients.
  *
  * @author Pedro Henrique
  */
@@ -42,11 +42,6 @@ public class Material implements Copyable<Material> {
      * The material reflection, should be between 0 (completely diffuse) and 1 (specular).
      */
     private float reflection; // Ks -> specular coefficient
-
-    /**
-     * The material shininess, should be between 0 (low concentration) and 1000 (high concentration).
-     */
-    private float shininess; //A -> specular energy concentration
 
     /**
      * The material refraction, should be between 0 (opaque) and 1 (transparent).
@@ -84,32 +79,50 @@ public class Material implements Copyable<Material> {
     private static final float DEFAULT_REFLECTION = 0.15f;
 
     /**
-     * The default reflection of the material.
-     */
-    private static final float DEFAULT_SHININESS = 5;
-
-    /**
      * The default refraction of the material.
      */
     private static final float DEFAULT_REFRACTION = 0;
 
     /**
      * Create the material with the default fields, the surface light gray, emits nothing, perfectly diffuse, reflects
-     * 0.15 of the light, low shininess (5) and opaque (refraction equals 0).
+     * 0.15 of the light and is opaque (refraction equals 0).
      */
     public Material() {
-        this(DEFAULT_SURFACE_COLOR, DEFAULT_EMISSIVE_COLOR, DEFAULT_EMISSIVE, DEFAULT_FULLY_EMISSIVE,
-                DEFAULT_PROPAGATION, DEFAULT_REFLECTION, DEFAULT_SHININESS, DEFAULT_REFRACTION);
+        this(DEFAULT_SURFACE_COLOR.copy(), DEFAULT_EMISSIVE_COLOR.copy(), DEFAULT_EMISSIVE, DEFAULT_FULLY_EMISSIVE,
+                DEFAULT_PROPAGATION, DEFAULT_REFLECTION, DEFAULT_REFRACTION);
     }
 
     /**
-     * Creates the material with the received surface color, and the default fields (see {@link #Material()}).
+     * Creates the material with the received surface color and not emissive, and the default fields
+     * (see {@link #Material()}).
      *
      * @param surfaceColor the material surface color
      */
     public Material(Color surfaceColor) {
-        this(surfaceColor, DEFAULT_EMISSIVE_COLOR, DEFAULT_EMISSIVE, DEFAULT_FULLY_EMISSIVE, DEFAULT_PROPAGATION,
-                DEFAULT_REFLECTION, DEFAULT_SHININESS, DEFAULT_REFRACTION);
+        this(surfaceColor, DEFAULT_EMISSIVE_COLOR.copy(), DEFAULT_EMISSIVE, DEFAULT_FULLY_EMISSIVE, DEFAULT_PROPAGATION,
+                DEFAULT_REFLECTION, DEFAULT_REFRACTION);
+    }
+
+    /**
+     * Creates the material with the received surface color and not emissive, and the received properties
+     *
+     * @param surfaceColor the material surface color
+     * @param propagation  the propagation of the material (should be between than 0 and 1)
+     * @param reflection   the reflection of the material (should be between than 0 and 1)
+     * @param refraction   the refraction of the material (should be between than 0 and 1)
+     */
+    public Material(Color surfaceColor, float propagation, float reflection, float refraction) {
+        this(surfaceColor, Color.black(), false, false, propagation, reflection, refraction);
+    }
+
+    /**
+     * Creates a emissive material, with the received emission color and default material properties.
+     *
+     * @param emissiveColor the emissive color
+     * @param fullyEmissive if is fully emissive
+     */
+    public Material(Color emissiveColor, boolean fullyEmissive) {
+        this(Color.black(), emissiveColor, false, fullyEmissive, 0, 0, 0);
     }
 
     /**
@@ -121,25 +134,22 @@ public class Material implements Copyable<Material> {
      * @param fullyEmissive if the material is fully emissive
      * @param propagation   the propagation of the material (should be between than 0 and 1)
      * @param reflection    the reflection of the material (should be between than 0 and 1)
-     * @param shininess     the shininess of the material (should be between than 0 and 1000)
      * @param refraction    the refraction of the material (should be between than 0 and 1)
      */
     public Material(Color surfaceColor, Color emissiveColor, boolean emissive, boolean fullyEmissive, float propagation,
-                    float reflection, float shininess, float refraction) {
+                    float reflection, float refraction) {
         this.surfaceColor = Objects.requireNonNull(surfaceColor, "The surface color can not be null.");
         this.emissiveColor = Objects.requireNonNull(emissiveColor, "The emissive color ca not be null.");
         this.emissive = emissive;
         this.fullyEmissive = fullyEmissive;
         this.propagation = TTMath.clamp01(propagation);
         this.reflection = TTMath.clamp01(reflection);
-        this.shininess = TTMath.clamp(shininess, 0, 1000);
         this.refraction = TTMath.clamp01(refraction);
     }
 
     @Override
     public Material copy() {
-        return new Material(surfaceColor, emissiveColor, emissive, fullyEmissive, propagation, reflection, shininess,
-                refraction);
+        return new Material(surfaceColor, emissiveColor, emissive, fullyEmissive, propagation, reflection, refraction);
     }
 
     /**
@@ -194,15 +204,6 @@ public class Material implements Copyable<Material> {
      */
     public float getReflection() {
         return reflection;
-    }
-
-    /**
-     * Returns the shininess of this material.
-     *
-     * @return the shininess of this material
-     */
-    public float getShininess() {
-        return shininess;
     }
 
     /**
@@ -277,17 +278,6 @@ public class Material implements Copyable<Material> {
      */
     public Material setReflection(float reflection) {
         this.reflection = TTMath.clamp01(reflection);
-        return this;
-    }
-
-    /**
-     * Sets the received shininess property in this material.
-     *
-     * @param shininess the new shininess of the material (should be between 0 and 1000)
-     * @return this material modified
-     */
-    public Material setShininess(float shininess) {
-        this.shininess = TTMath.clamp(shininess, 0, 1000);
         return this;
     }
 
