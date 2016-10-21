@@ -49,6 +49,11 @@ public class Material implements Copyable<Material> {
     private float refraction; // Kt -> transparency coefficient
 
     /**
+     * The refractive index of the material, ignored if the refraction is 0.
+     */
+    private float refractiveIndex;
+
+    /**
      * The default surface color of the material.
      */
     private static final Color DEFAULT_SURFACE_COLOR = Color.lightGray();
@@ -84,12 +89,17 @@ public class Material implements Copyable<Material> {
     private static final float DEFAULT_REFRACTION = 0;
 
     /**
+     * The default refractive index of the material.
+     */
+    private static final float DEFAULT_REFRACTIVE_INDEX = 1;
+
+    /**
      * Create the material with the default fields, the surface light gray, emits nothing, perfectly diffuse, reflects
      * 0.15 of the light and is opaque (refraction equals 0).
      */
     public Material() {
         this(DEFAULT_SURFACE_COLOR.copy(), DEFAULT_EMISSIVE_COLOR.copy(), DEFAULT_EMISSIVE, DEFAULT_FULLY_EMISSIVE,
-                DEFAULT_PROPAGATION, DEFAULT_REFLECTION, DEFAULT_REFRACTION);
+                DEFAULT_PROPAGATION, DEFAULT_REFLECTION, DEFAULT_REFRACTION, DEFAULT_REFRACTIVE_INDEX);
     }
 
     /**
@@ -100,7 +110,7 @@ public class Material implements Copyable<Material> {
      */
     public Material(Color surfaceColor) {
         this(surfaceColor, DEFAULT_EMISSIVE_COLOR.copy(), DEFAULT_EMISSIVE, DEFAULT_FULLY_EMISSIVE, DEFAULT_PROPAGATION,
-                DEFAULT_REFLECTION, DEFAULT_REFRACTION);
+                DEFAULT_REFLECTION, DEFAULT_REFRACTION, DEFAULT_REFRACTIVE_INDEX);
     }
 
     /**
@@ -112,7 +122,7 @@ public class Material implements Copyable<Material> {
      * @param refraction   the refraction of the material (should be between than 0 and 1)
      */
     public Material(Color surfaceColor, float propagation, float reflection, float refraction) {
-        this(surfaceColor, Color.black(), false, false, propagation, reflection, refraction);
+        this(surfaceColor, Color.black(), false, false, propagation, reflection, refraction, DEFAULT_REFRACTIVE_INDEX);
     }
 
     /**
@@ -122,22 +132,23 @@ public class Material implements Copyable<Material> {
      * @param fullyEmissive if is fully emissive
      */
     public Material(Color emissiveColor, boolean fullyEmissive) {
-        this(Color.black(), emissiveColor, false, fullyEmissive, 0, 0, 0);
+        this(Color.black(), emissiveColor, false, fullyEmissive, 0, 0, 0, 1);
     }
 
     /**
      * Creates the material with the received values, the numeric values are clamped if out of the valid interval.
      *
-     * @param surfaceColor  the material surface color
-     * @param emissiveColor the color that this material emits
-     * @param emissive      if the material is emissive
-     * @param fullyEmissive if the material is fully emissive
-     * @param propagation   the propagation of the material (should be between than 0 and 1)
-     * @param reflection    the reflection of the material (should be between than 0 and 1)
-     * @param refraction    the refraction of the material (should be between than 0 and 1)
+     * @param surfaceColor    the material surface color
+     * @param emissiveColor   the color that this material emits
+     * @param emissive        if the material is emissive
+     * @param fullyEmissive   if the material is fully emissive
+     * @param propagation     the propagation of the material (should be between than 0 and 1)
+     * @param reflection      the reflection of the material (should be between than 0 and 1)
+     * @param refraction      the refraction of the material (should be between than 0 and 1)
+     * @param refractiveIndex the refractive index of the material (should be between 1 and 10)
      */
     public Material(Color surfaceColor, Color emissiveColor, boolean emissive, boolean fullyEmissive, float propagation,
-                    float reflection, float refraction) {
+                    float reflection, float refraction, float refractiveIndex) {
         this.surfaceColor = Objects.requireNonNull(surfaceColor, "The surface color can not be null.");
         this.emissiveColor = Objects.requireNonNull(emissiveColor, "The emissive color ca not be null.");
         this.emissive = emissive;
@@ -145,11 +156,13 @@ public class Material implements Copyable<Material> {
         this.propagation = TTMath.clamp01(propagation);
         this.reflection = TTMath.clamp01(reflection);
         this.refraction = TTMath.clamp01(refraction);
+        this.refractiveIndex = TTMath.clamp(refractiveIndex, 1, 10);
     }
 
     @Override
     public Material copy() {
-        return new Material(surfaceColor, emissiveColor, emissive, fullyEmissive, propagation, reflection, refraction);
+        return new Material(surfaceColor, emissiveColor, emissive, fullyEmissive, propagation, reflection, refraction,
+                refractiveIndex);
     }
 
     /**
@@ -213,6 +226,15 @@ public class Material implements Copyable<Material> {
      */
     public float getRefraction() {
         return refraction;
+    }
+
+    /**
+     * Returns the refractive index of the material.
+     *
+     * @return the refractive index
+     */
+    public float getRefractiveIndex() {
+        return refractiveIndex;
     }
 
     /**
@@ -289,6 +311,17 @@ public class Material implements Copyable<Material> {
      */
     public Material setRefraction(float refraction) {
         this.refraction = TTMath.clamp01(refraction);
+        return this;
+    }
+
+    /**
+     * Sets the received refractive index in this material.
+     *
+     * @param refractiveIndex the new refractive index of the material (should be between 1 and 10)
+     * @return this material modified
+     */
+    public Material setRefractiveIndex(float refractiveIndex) {
+        this.refractiveIndex = TTMath.clamp(refractiveIndex, 1, 10);
         return this;
     }
 }
