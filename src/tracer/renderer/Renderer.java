@@ -1,13 +1,19 @@
 package tracer.renderer;
 
+import tracer.data.Matrix4;
 import tracer.data.Vector3;
 import tracer.data.material.Color;
+import tracer.data.material.Material;
+import tracer.data.trace.Hit;
 import tracer.data.trace.Ray;
+import tracer.model.Model;
 import tracer.scene.Camera;
 import tracer.scene.Display;
 import tracer.scene.Scene;
+import tracer.util.TTMath;
 
 import java.util.Objects;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -16,7 +22,7 @@ import java.util.function.Consumer;
  *
  * @author Pedro Henrique
  */
-public class PathTracerRenderer {
+public class Renderer {
 
     /**
      * The scene to be rendered.
@@ -36,7 +42,7 @@ public class PathTracerRenderer {
     /**
      * Function that runs before each frame rendering.
      */
-    private Consumer<PathTracerRenderer> frameUpdate;
+    private Consumer<Renderer> frameUpdate;
 
     /**
      * Creates the renderer with the received scene, camera and display.
@@ -45,7 +51,7 @@ public class PathTracerRenderer {
      * @param camera  the camera.
      * @param display the display to show de image.
      */
-    public PathTracerRenderer(Scene scene, Camera camera, Display display) {
+    public Renderer(Scene scene, Camera camera, Display display) {
         this.scene = Objects.requireNonNull(scene);
         this.camera = Objects.requireNonNull(camera);
         this.display = Objects.requireNonNull(display);
@@ -59,7 +65,7 @@ public class PathTracerRenderer {
      * @param display     the display to show de image.
      * @param frameUpdate consumer that runs before each frame.
      */
-    public PathTracerRenderer(Scene scene, Camera camera, Display display, Consumer<PathTracerRenderer> frameUpdate) {
+    public Renderer(Scene scene, Camera camera, Display display, Consumer<Renderer> frameUpdate) {
         this.scene = Objects.requireNonNull(scene);
         this.camera = Objects.requireNonNull(camera);
         this.display = Objects.requireNonNull(display);
@@ -125,7 +131,7 @@ public class PathTracerRenderer {
      *
      * @param frameUpdate the received frame update consumer in the renderer.
      */
-    public void setFrameUpdate(Consumer<PathTracerRenderer> frameUpdate) {
+    public void setFrameUpdate(Consumer<Renderer> frameUpdate) {
         this.frameUpdate = frameUpdate;
     }
 
@@ -220,6 +226,7 @@ public class PathTracerRenderer {
                 frameUpdate.accept(this);
             }
             renderFrame();
+            System.out.println(getFrameRate());
             //
             long finishFrameTime = System.currentTimeMillis();
             float deltaFrameTime = (finishFrameTime - startFrameTime) / 1000.0f;
@@ -232,26 +239,163 @@ public class PathTracerRenderer {
         frameRate = 0;
     }
 
-    // Tracing properties
-    private final int RAY_DEPTH = 15;
-    private final int RAYS_PER_PIXEL = 100;
+    /**
+     * This method renders a frame, works calculating rays directions and checking intersections.
+     */
+    protected void renderFrame() {
+        int width = display.getDisplayWidth();
+        int height = display.getDisplayHeight();
+        int[] frontBuffer = display.getFrontBuffer();
+
+        float aspectRatio = width / height;
+        float halfFovyTangent = (float) Math.tan(camera.getFovy() / 2);
+        Matrix4 cameraToWorldTransform = camera.cameraToWorldSpaceTransform();
+
+        Vector3 rayOrigin = cameraToWorldTransform.transformAsPoint(Vector3.zero());
+
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                float rayDirectionX = (2 * ((x + 0.5f) / width) - 1) * aspectRatio * halfFovyTangent;
+                float rayDirectionY = (1 - 2 * ((y + 0.5f) / height)) * halfFovyTangent;
+                float rayDirectionZ = 1;
+                Vector3 rayDirection = cameraToWorldTransform.transformAsDirection(
+                        new Vector3(rayDirectionX, rayDirectionY, rayDirectionZ)
+                ).normalize();
+                frontBuffer[x + y * width] = renderPixel(new Ray(rayOrigin, rayDirection)).getIntValue();
+            }
+        }
+        display.flush();
+    }
+
+    //
+    private static final int PIXEL_SAMPLES = 10;
+    private static final int LIGHT_SAMPLES = 5;
+    private static final int MAX_RAY_DEPTH = 6;
+    //
+    private static final float ORIGIN_BIAS = 1e-4f;
     //
 
     /**
-     * This method renders a frame.
+     * This method renders a pixel.
+     *
+     * @param ray the pixel ray
+     * @return the color of the pixel
      */
-    protected void renderFrame() {
+    protected Color renderPixel(Ray ray) {
+        Random prng = new Random();
+        Color pixelColor = Color.black();
+        //for (int i = 0; i < PIXEL_SAMPLES; i++) {
+        //    pixelColor.sum(traceRay(ray, 0, prng).scale(1.0f / PIXEL_SAMPLES));
+        //}
+        for (int i = 0; i < 1; i++) {
+            pixelColor.sum(traceRay(ray, 0, prng).scale(1.0f / 1));
+        }
+        return pixelColor;
     }
 
     /**
-     * This method renders a pixel.
+     * Traces a ray in the scene, the ray can taker different paths in each bounce and take different energy paths.
+     *
+     * @param ray      the ray to trace
+     * @param rayDepth the current ray depth
+     * @param prng     the prng used in indirect light calculation
+     * @return the color obtained by the ray tracing
      */
-    protected void renderPixel() {
+    protected Color traceRay(Ray ray, int rayDepth, Random prng) {
+
+        // Intersection checking
+        Hit hit = castRay(ray);
+
+        // If no one intersection happens
+        if (hit == null) {
+            return scene.getBackgroundColor();
+        }
+
+        // If an intersection happens
+        float bias = 1e-4f;
+        boolean inside = false;
+        Color resultantSurfaceColor = Color.black();
+        Material hitModelMaterial = hit.model.getMaterial();
+
+        // Check if the ray was traced inside of the model
+        if (ray.direction.dot(hit.normal) > 0) {
+            hit.normal.negate();
+            inside = true;
+        }
+        Vector3 subFrontRay = Vector3.orientate(hit.point, hit.normal, bias); // Sub rays origin
+        Vector3 subBackRay = Vector3.orientate(hit.point, hit.normal, -bias); // Sub refraction ray origin
+
+        if (rayDepth < MAX_RAY_DEPTH && (hitModelMaterial.getRefraction() > 0 || hitModelMaterial.getReflection() > 0)) {
+            Color refractedColor = Color.black();
+            Color reflexiveColor = Color.black();
+            float facingRatio = Vector3.negate(ray.direction).dot(hit.normal);
+            float fresnelEffect = TTMath.interpolate((float) Math.pow(1 - facingRatio, 3), 1, 0.1f);
+
+            // Refracted color calculation
+            if (hitModelMaterial.getRefraction() > 0) {
+                float ior = 1.1f;
+                float eta = inside ? ior : 1 / ior;
+                float cosine = ray.direction.dot(Vector3.negate(hit.normal));
+                float k = 1 - eta * eta * (1 - cosine * cosine);
+                Vector3 refractionRayDirection = Vector3.sum(
+                        Vector3.scale(ray.direction, eta),
+                        Vector3.scale(hit.normal, eta * cosine - (float) Math.sqrt(k))
+                ).normalize();
+                refractedColor = traceRay(new Ray(subBackRay, refractionRayDirection), rayDepth + 1, prng);
+            }
+
+            // Reflexive color calculation
+            if (hitModelMaterial.getReflection() > 0) {
+                Vector3 reflectionRayDirection
+                        = Vector3.orientate(ray.direction, hit.normal, -2 * ray.direction.dot(hit.normal))
+                        .normalize();
+                reflexiveColor = traceRay(new Ray(subFrontRay, reflectionRayDirection), rayDepth + 1, prng);
+            }
+
+            resultantSurfaceColor = Color.sum(
+                    reflexiveColor.scale(hitModelMaterial.getReflection() * fresnelEffect),
+                    refractedColor.scale(hitModelMaterial.getRefraction() * (1 - fresnelEffect))
+            ).mul(hitModelMaterial.getSurfaceColor());
+        } else {
+            if (rayDepth < MAX_RAY_DEPTH) {
+                boolean a = true;
+            }
+            for (Model emissiveModel : scene.getModels()) {
+                Color emissiveColor = emissiveModel.getMaterial().getEmissiveColor();
+                if (emissiveColor.getR() > 0 || emissiveColor.getG() > 0 || emissiveColor.getB() > 0) {
+                    Vector3 shadowRayDirection = Vector3.sub(emissiveModel.getCenter(), hit.point).normalize();
+                    Hit shadowHit = castRay(new Ray(subFrontRay, shadowRayDirection));
+                    if (shadowHit != null && shadowHit.model.equals(emissiveModel)) {
+                        float emissionRate = shadowRayDirection.dot(hit.normal);
+                        resultantSurfaceColor.sum(Color.mul(hitModelMaterial.getSurfaceColor(), emissiveColor)
+                                .scale(emissionRate < 0 ? 0 : emissionRate));
+                    }
+                }
+            }
+        }
+        return resultantSurfaceColor.sum(hitModelMaterial.getEmissiveColor());
     }
 
-    protected Color traceRay(Ray ray, int rayDepth) {
-        return null;
+    // Helper methods
+
+    /**
+     * Casts the received ray in the scene checking for intersections and returns the nearest intersection, or null if
+     * the ray touches nothing
+     *
+     * @param ray the ray to cast in the scene
+     * @return the nearest hit or null
+     */
+    private Hit castRay(Ray ray) {
+        Hit nearestHit = null;
+        for (Model model : scene.getModels()) {
+            Hit hit = model.intersect(ray);
+            if (nearestHit == null || (hit != null && hit.distance < nearestHit.distance)) {
+                nearestHit = hit;
+            }
+        }
+        return nearestHit;
     }
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
