@@ -10,7 +10,6 @@ import tracer.model.Model;
 import tracer.scene.Camera;
 import tracer.scene.Display;
 import tracer.scene.Scene;
-import tracer.util.TTMath;
 
 import java.util.Objects;
 import java.util.Random;
@@ -254,6 +253,7 @@ public class Renderer {
         Vector3 rayOrigin = cameraToWorldTransform.transformAsPoint(Vector3.zero());
 
         for (int x = 0; x < width; x++) {
+            System.out.println("Rendering column " + x + " of " + width);
             for (int y = 0; y < height; y++) {
                 float rayDirectionX = (2 * ((x + 0.5f) / width) - 1) * aspectRatio * halfFovyTangent;
                 float rayDirectionY = (1 - 2 * ((y + 0.5f) / height)) * halfFovyTangent;
@@ -268,9 +268,9 @@ public class Renderer {
     }
 
     //
-    private static final int PIXEL_SAMPLES = 10;
-    private static final int LIGHT_SAMPLES = 5;
-    private static final int MAX_RAY_DEPTH = 6;
+    private static final int PIXEL_SAMPLES = 100;
+    private static final int LIGHT_SAMPLES = 30;
+    private static final int MAX_RAY_DEPTH = 10;
     //
     private static final float ORIGIN_BIAS = 1e-4f;
     //
@@ -284,11 +284,8 @@ public class Renderer {
     protected Color renderPixel(Ray ray) {
         Random prng = new Random();
         Color pixelColor = Color.black();
-        //for (int i = 0; i < PIXEL_SAMPLES; i++) {
-        //    pixelColor.sum(traceRay(ray, 0, prng).scale(1.0f / PIXEL_SAMPLES));
-        //}
-        for (int i = 0; i < 1; i++) {
-            pixelColor.sum(traceRay(ray, 0, prng).scale(1.0f / 1));
+        for (int i = 0; i < PIXEL_SAMPLES; i++) {
+            pixelColor.sum(traceRay(ray, 0, prng).scale(1.0f / PIXEL_SAMPLES));
         }
         return pixelColor;
     }
@@ -303,6 +300,11 @@ public class Renderer {
      */
     protected Color traceRay(Ray ray, int rayDepth, Random prng) {
 
+        // Checks the ray depth
+        if (rayDepth == MAX_RAY_DEPTH) {
+            return scene.getBackgroundColor();
+        }
+
         // Intersection checking
         Hit hit = castRay(ray);
 
@@ -312,68 +314,79 @@ public class Renderer {
         }
 
         // If an intersection happens
-        float bias = 1e-4f;
-        boolean inside = false;
-        Color resultantSurfaceColor = Color.black();
-        Material hitModelMaterial = hit.model.getMaterial();
+        Material modelMaterial = hit.model.getMaterial(); // The hit model material
 
-        // Check if the ray was traced inside of the model
+        // Check if is inside the model
+        boolean insideModel = false;
         if (ray.direction.dot(hit.normal) > 0) {
             hit.normal.negate();
-            inside = true;
+            insideModel = true;
         }
-        Vector3 subFrontRay = Vector3.orientate(hit.point, hit.normal, bias); // Sub rays origin
-        Vector3 subBackRay = Vector3.orientate(hit.point, hit.normal, -bias); // Sub refraction ray origin
 
-        if (rayDepth < MAX_RAY_DEPTH && (hitModelMaterial.getRefraction() > 0 || hitModelMaterial.getReflection() > 0)) {
-            Color refractedColor = Color.black();
-            Color reflexiveColor = Color.black();
-            float facingRatio = Vector3.negate(ray.direction).dot(hit.normal);
-            float fresnelEffect = TTMath.interpolate((float) Math.pow(1 - facingRatio, 3), 1, 0.1f);
+        // Emission light check
+        Color emissionContribution = null;
+        if (modelMaterial.isFullyEmissive()) {
+            return modelMaterial.getEmissiveColor().copy();
+        } else if (modelMaterial.isEmissive()) {
+            emissionContribution = modelMaterial.getEmissiveColor();
+        }
 
-            // Refracted color calculation
-            if (hitModelMaterial.getRefraction() > 0) {
-                float ior = 1.1f;
-                float eta = inside ? ior : 1 / ior;
-                float cosine = ray.direction.dot(Vector3.negate(hit.normal));
-                float k = 1 - eta * eta * (1 - cosine * cosine);
-                Vector3 refractionRayDirection = Vector3.sum(
-                        Vector3.scale(ray.direction, eta),
-                        Vector3.scale(hit.normal, eta * cosine - (float) Math.sqrt(k))
-                ).normalize();
-                refractedColor = traceRay(new Ray(subBackRay, refractionRayDirection), rayDepth + 1, prng);
-            }
-
-            // Reflexive color calculation
-            if (hitModelMaterial.getReflection() > 0) {
-                Vector3 reflectionRayDirection
-                        = Vector3.orientate(ray.direction, hit.normal, -2 * ray.direction.dot(hit.normal))
-                        .normalize();
-                reflexiveColor = traceRay(new Ray(subFrontRay, reflectionRayDirection), rayDepth + 1, prng);
-            }
-
-            resultantSurfaceColor = Color.sum(
-                    reflexiveColor.scale(hitModelMaterial.getReflection() * fresnelEffect),
-                    refractedColor.scale(hitModelMaterial.getRefraction() * (1 - fresnelEffect))
-            ).mul(hitModelMaterial.getSurfaceColor());
-        } else {
-            if (rayDepth < MAX_RAY_DEPTH) {
-                boolean a = true;
-            }
-            for (Model emissiveModel : scene.getModels()) {
-                Color emissiveColor = emissiveModel.getMaterial().getEmissiveColor();
-                if (emissiveColor.getR() > 0 || emissiveColor.getG() > 0 || emissiveColor.getB() > 0) {
-                    Vector3 shadowRayDirection = Vector3.sub(emissiveModel.getCenter(), hit.point).normalize();
-                    Hit shadowHit = castRay(new Ray(subFrontRay, shadowRayDirection));
+        // Direct light check
+        Color directLightContribution = Color.black();
+        for (Model emissiveModel : scene.getModels()) {
+            if (emissiveModel.getMaterial().isEmissive() || emissiveModel.getMaterial().isFullyEmissive()) {
+                for (Vector3 lightPoint : emissiveModel.getSurfacePoints(LIGHT_SAMPLES)) {
+                    Vector3 shadowRayDirection = Vector3.sub(lightPoint, hit.point).normalize();
+                    Vector3 shadowRayOrigin = Vector3.orientate(hit.point, shadowRayDirection, ORIGIN_BIAS);
+                    Hit shadowHit = castRay(new Ray(shadowRayOrigin, shadowRayDirection));
                     if (shadowHit != null && shadowHit.model.equals(emissiveModel)) {
-                        float emissionRate = shadowRayDirection.dot(hit.normal);
-                        resultantSurfaceColor.sum(Color.mul(hitModelMaterial.getSurfaceColor(), emissiveColor)
-                                .scale(emissionRate < 0 ? 0 : emissionRate));
+                        float emissionRate = shadowRayDirection.dot(hit.normal) / LIGHT_SAMPLES;
+                        directLightContribution.sum(
+                                Color.mul(
+                                        modelMaterial.getSurfaceColor(),
+                                        emissiveModel.getMaterial().getEmissiveColor()
+                                ).scale(emissionRate < 0 ? 0 : emissionRate)
+                        );
                     }
                 }
             }
         }
-        return resultantSurfaceColor.sum(hitModelMaterial.getEmissiveColor());
+
+        // Indirect light check
+        Color propagationContribution = Color.black();
+        Color reflectionContribution = Color.black();
+        Color refractionContribution = Color.black();
+        float kMax = modelMaterial.getPropagation() + modelMaterial.getReflection() + modelMaterial.getRefraction();
+        float randomK = prng.nextFloat() * kMax;
+
+        if (randomK < modelMaterial.getPropagation()) {
+            // Diffuse ray
+            Vector3 propagationRayDirection = calculateRandomDirectionInOrientedHemisphere(hit.normal, prng);
+            Vector3 propagationRayOrigin = Vector3.orientate(hit.point, propagationRayDirection, ORIGIN_BIAS);
+            propagationContribution
+                    = traceRay(new Ray(propagationRayOrigin, propagationRayDirection), rayDepth + 1, prng)
+                    .mul(modelMaterial.getSurfaceColor()).scale(modelMaterial.getPropagation() / kMax);
+            //
+        } else if (randomK < modelMaterial.getPropagation() + modelMaterial.getReflection()) {
+            // Specular ray
+            Vector3 reflectionRayDirection = calculateRayReflection(ray.direction, hit.normal);
+            Vector3 reflectionRayOrigin = Vector3.orientate(hit.point, reflectionRayDirection, ORIGIN_BIAS);
+            reflectionContribution = traceRay(new Ray(reflectionRayOrigin, reflectionRayDirection), rayDepth + 1, prng);
+            //
+        } else {
+            // Refracted ray
+            Vector3 refractionRayDirection = calculateRayRefraction(ray.direction, hit.normal,
+                    insideModel ? 1 / modelMaterial.getRefractiveIndex() : modelMaterial.getRefractiveIndex()
+            );
+            Vector3 refractionRayOrigin = Vector3.orientate(hit.point, refractionRayDirection, ORIGIN_BIAS);
+            refractionContribution = traceRay(new Ray(refractionRayOrigin, refractionRayDirection), rayDepth + 1, prng);
+            //
+        }
+
+        if (propagationContribution != null) {
+            directLightContribution.sum(propagationContribution);
+        }
+        return directLightContribution;
     }
 
     // Helper methods
@@ -396,6 +409,49 @@ public class Renderer {
         return nearestHit;
     }
 
+    /**
+     * Returns a random point the the hemisphare oriented by the received vector.
+     *
+     * @param orientation the hemisphere orientation
+     * @param prng        the prng used to generate the point
+     * @return the point in the hemisphere
+     */
+    private Vector3 calculateRandomDirectionInOrientedHemisphere(Vector3 orientation, Random prng) {
+        float longitude = 2 * (float) Math.PI * prng.nextFloat();
+        float latitude = (float) Math.acos(2 * prng.nextFloat() - 1) / 2;
+        return Matrix4.rotationBetween(Vector3.forward(), orientation).transformAsDirection(new Vector3(
+                (float) (Math.sin(latitude) * Math.cos(longitude)),
+                (float) (Math.sin(latitude) * Math.sin(longitude)),
+                (float) (Math.cos(latitude))));
+    }
+
+    /**
+     * Returns the reflected direction over the received normal.
+     *
+     * @param direction the direction
+     * @param normal    the normal
+     * @return the reflected direction
+     */
+    private Vector3 calculateRayReflection(Vector3 direction, Vector3 normal) {
+        return Vector3.orientate(direction, normal, -2 * direction.dot(normal));
+    }
+
+    /**
+     * Returns the refracted direction over the received normal with the received refractive index.
+     *
+     * @param direction       the direction
+     * @param normal          the normal
+     * @param refractiveIndex the refractive index
+     * @return the refracted direction
+     */
+    private Vector3 calculateRayRefraction(Vector3 direction, Vector3 normal, float refractiveIndex) {
+        float externalCosine = direction.dot(Vector3.negate(normal));
+        float internalSquaredSine = refractiveIndex * refractiveIndex * (1 - externalCosine * externalCosine);
+        float internalCosine = 1 - internalSquaredSine;
+        return Vector3.sum(Vector3.scale(direction, refractiveIndex),
+                Vector3.scale(normal, refractiveIndex * externalCosine - (float) Math.sqrt(internalCosine)))
+                .normalize();
+    }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
