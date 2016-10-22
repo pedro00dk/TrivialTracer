@@ -263,14 +263,15 @@ public class Renderer {
                 ).normalize();
                 frontBuffer[x + y * width] = renderPixel(new Ray(rayOrigin, rayDirection)).getIntValue();
             }
+            display.flush();
         }
-        display.flush();
+        //display.flush();
     }
 
     //
-    private static final int PIXEL_SAMPLES = 100;
-    private static final int LIGHT_SAMPLES = 30;
-    private static final int MAX_RAY_DEPTH = 10;
+    private static final int PIXEL_SAMPLES = 10;
+    private static final int LIGHT_SAMPLES = 10;
+    private static final int MAX_RAY_DEPTH = 6;
     //
     private static final float ORIGIN_BIAS = 1e-4f;
     //
@@ -333,24 +334,28 @@ public class Renderer {
 
         // Direct light check
         Color directLightContribution = Color.black();
-        for (Model emissiveModel : scene.getModels()) {
-            if (emissiveModel.getMaterial().isEmissive() || emissiveModel.getMaterial().isFullyEmissive()) {
-                for (Vector3 lightPoint : emissiveModel.getSurfacePoints(LIGHT_SAMPLES)) {
+        for (Model light : scene.getLights()) {
+            if (!hit.model.equals(light)
+                    && (light.getMaterial().isEmissive() || light.getMaterial().isFullyEmissive())) {
+                for (Vector3 lightPoint : light.getSurfacePoints(LIGHT_SAMPLES)) {
                     Vector3 shadowRayDirection = Vector3.sub(lightPoint, hit.point).normalize();
                     Vector3 shadowRayOrigin = Vector3.orientate(hit.point, shadowRayDirection, ORIGIN_BIAS);
                     Hit shadowHit = castRay(new Ray(shadowRayOrigin, shadowRayDirection));
-                    if (shadowHit != null && shadowHit.model.equals(emissiveModel)) {
+                    if (shadowHit != null && shadowHit.model.equals(light)) {
                         float emissionRate = shadowRayDirection.dot(hit.normal) / LIGHT_SAMPLES;
                         directLightContribution.sum(
                                 Color.mul(
                                         modelMaterial.getSurfaceColor(),
-                                        emissiveModel.getMaterial().getEmissiveColor()
-                                ).scale(emissionRate < 0 ? 0 : emissionRate)
+                                        light.getMaterial().getEmissiveColor()
+                                ).scale(emissionRate)
                         );
                     }
                 }
             }
         }
+        directLightContribution.scale(
+                modelMaterial.getPropagation() / modelMaterial.getPropagation() + modelMaterial.getRefraction()
+        );
 
         // Indirect light check
         Color propagationContribution = Color.black();
@@ -365,7 +370,7 @@ public class Renderer {
             Vector3 propagationRayOrigin = Vector3.orientate(hit.point, propagationRayDirection, ORIGIN_BIAS);
             propagationContribution
                     = traceRay(new Ray(propagationRayOrigin, propagationRayDirection), rayDepth + 1, prng)
-                    .mul(modelMaterial.getSurfaceColor()).scale(modelMaterial.getPropagation() / kMax);
+                    .mul(modelMaterial.getSurfaceColor());
             //
         } else if (randomK < modelMaterial.getPropagation() + modelMaterial.getReflection()) {
             // Specular ray
@@ -379,14 +384,11 @@ public class Renderer {
                     insideModel ? 1 / modelMaterial.getRefractiveIndex() : modelMaterial.getRefractiveIndex()
             );
             Vector3 refractionRayOrigin = Vector3.orientate(hit.point, refractionRayDirection, ORIGIN_BIAS);
-            refractionContribution = traceRay(new Ray(refractionRayOrigin, refractionRayDirection), rayDepth + 1, prng);
+            refractionContribution = traceRay(new Ray(refractionRayOrigin, refractionRayDirection), rayDepth + 1, prng)
+            .scale(modelMaterial.getPropagation() / modelMaterial.getPropagation() + modelMaterial.getRefraction());
             //
         }
-
-        if (propagationContribution != null) {
-            directLightContribution.sum(propagationContribution);
-        }
-        return directLightContribution;
+        return directLightContribution.sum(refractionContribution);
     }
 
     // Helper methods

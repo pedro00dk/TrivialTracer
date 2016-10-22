@@ -4,9 +4,11 @@ import tracer.data.material.Color;
 import tracer.model.Model;
 import tracer.util.Copyable;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
+
 
 /**
  * The scene to be rendered, contains all {@link Model}s and background {@link Color}.
@@ -16,9 +18,14 @@ import java.util.Set;
 public class Scene implements Copyable<Scene> {
 
     /**
-     * The models of the scene.
+     * All models of the scene.
      */
-    private Set<Model> models;
+    private List<Model> models;
+
+    /**
+     * The emissive models of the scene.
+     */
+    private List<Model> lights;
 
     /**
      * The background color of the scene.
@@ -28,13 +35,13 @@ public class Scene implements Copyable<Scene> {
     /**
      * The default background color.
      */
-    private static final Color DEFAULT_BACKGROUND_COLOR = Color.darkGray();
+    private static final Color DEFAULT_BACKGROUND_COLOR = Color.black();
 
     /**
      * Creates the scene with no models and default background color (dark gray)
      */
     public Scene() {
-        this(new HashSet<>(), DEFAULT_BACKGROUND_COLOR.copy());
+        this(new ArrayList<>(), DEFAULT_BACKGROUND_COLOR.copy());
     }
 
     /**
@@ -43,7 +50,7 @@ public class Scene implements Copyable<Scene> {
      *
      * @param models the models of the scene
      */
-    public Scene(Set<Model> models) {
+    public Scene(List<Model> models) {
         this(models, DEFAULT_BACKGROUND_COLOR);
     }
 
@@ -53,7 +60,7 @@ public class Scene implements Copyable<Scene> {
      * @param backgroundColor the background color of the scene
      */
     public Scene(Color backgroundColor) {
-        this(new HashSet<>(), backgroundColor);
+        this(new ArrayList<>(), backgroundColor);
     }
 
     /**
@@ -62,8 +69,14 @@ public class Scene implements Copyable<Scene> {
      * @param models          the models of the scene
      * @param backgroundColor the background color of the scene
      */
-    public Scene(Set<Model> models, Color backgroundColor) {
+    public Scene(List<Model> models, Color backgroundColor) {
         this.models = Objects.requireNonNull(models, "The set of models can not be null.");
+        lights = new ArrayList<>();
+        for (Model model : this.models) {
+            if (model.getMaterial().isEmissive() || model.getMaterial().isFullyEmissive()) {
+                lights.add(model);
+            }
+        }
         this.backgroundColor = Objects.requireNonNull(backgroundColor, "The background color can not be null.");
     }
 
@@ -73,12 +86,33 @@ public class Scene implements Copyable<Scene> {
     }
 
     /**
-     * Returns the list of models.
+     * Adds the received model to the scene models.
      *
-     * @return the list of models
+     * @param model the model to add (can not be null)
      */
-    public Set<Model> getModels() {
+    public void addModel(Model model) {
+        models.add(Objects.requireNonNull(model, "The model can not be null."));
+        if (model.getMaterial().isEmissive() || model.getMaterial().isFullyEmissive()) {
+            lights.add(model);
+        }
+    }
+
+    /**
+     * Returns the collection of models of the scene. The collection should no be modified.
+     *
+     * @return the collection of models
+     */
+    public Collection<Model> getModels() {
         return models;
+    }
+
+    /**
+     * Returns the collection of emissive models of the scene. The collection should no be modified.
+     *
+     * @return the collection of emissive models
+     */
+    public Collection<Model> getLights() {
+        return lights;
     }
 
     /**
@@ -88,15 +122,6 @@ public class Scene implements Copyable<Scene> {
      */
     public Color getBackgroundColor() {
         return backgroundColor.copy();
-    }
-
-    /**
-     * Sets the received set of models
-     *
-     * @param models the set of models
-     */
-    public void setModels(Set<Model> models) {
-        this.models = Objects.requireNonNull(models, "The set of models can not be null.");
     }
 
     /**
