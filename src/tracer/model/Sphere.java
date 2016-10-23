@@ -100,7 +100,7 @@ public class Sphere implements Model {
 
     @Override
     public Model copy() {
-        return new Sphere(center, radius, material);
+        return new Sphere(center.copy(), radius, material.copy());
     }
 
     @Override

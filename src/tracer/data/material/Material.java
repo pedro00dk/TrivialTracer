@@ -161,8 +161,8 @@ public class Material implements Copyable<Material> {
 
     @Override
     public Material copy() {
-        return new Material(surfaceColor, emissiveColor, emissive, fullyEmissive, propagation, reflection, refraction,
-                refractiveIndex);
+        return new Material(surfaceColor.copy(), emissiveColor.copy(), emissive, fullyEmissive, propagation, reflection,
+                refraction, refractiveIndex);
     }
 
     /**
