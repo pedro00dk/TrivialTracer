@@ -5,6 +5,7 @@ import tracer.data.Vector3;
 import tracer.data.material.Color;
 import tracer.data.material.Material;
 import tracer.model.Sphere;
+import tracer.renderer.PTRenderer;
 import tracer.renderer.Renderer;
 import tracer.scene.Camera;
 import tracer.scene.Display;
@@ -20,8 +21,8 @@ public class Main {
 
     public static void main(String[] args) {
         Scene scene = new Scene(Color.darkGray());
-        Camera camera = new Camera(new Vector3(0, 0, 14), Vector3.zero());
-        Display display = new JDisplay(400, 400);
+        Camera camera = new Camera(new Vector3(12, 2, 0), Vector3.zero());
+        Display display = new JDisplay(300, 300);
 
         //
 
@@ -31,8 +32,8 @@ public class Main {
         Material wallOpaqueMaterial = new Material(Color.white().scale(0.7f), 1, 0, 0);
         Material opaqueMaterial = new Material(Color.pink(), 1, 0, 0);
         Material reflexiveMaterial = new Material(Color.yellow().scale(0.75f), 0, 1, 0);
-        Material translucentMaterial = new Material(Color.white(), 0, 0, 1);
-        Material reflexiveAndTranslucentMaterial = new Material(Color.white(), 0, 0.5f, 0.5f);
+        Material translucentMaterial = new Material(Color.white(), 0.35f, 0, 1);
+        Material reflexiveAndTranslucentMaterial = new Material(Color.white(), 1, 0.5f, 0.5f);
 
         //
 
@@ -62,10 +63,10 @@ public class Main {
         //
 
         JFrame frame = new JFrame();
-        frame.setSize(600, 600);
+        frame.setSize(680, 520);
         frame.add((JDisplay) display);
 
-        Renderer renderer = new Renderer(scene, camera, display, Main::frameUpdateConsumer);
+        Renderer renderer = new PTRenderer(scene, camera, display, Main::frameUpdateConsumer);
         renderer.start();
 
         frame.setVisible(true);
