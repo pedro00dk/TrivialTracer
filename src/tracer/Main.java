@@ -5,7 +5,7 @@ import tracer.data.Vector3;
 import tracer.data.material.Color;
 import tracer.data.material.Material;
 import tracer.model.Sphere;
-import tracer.renderer.PTRenderer;
+import tracer.renderer.RTRenderer;
 import tracer.renderer.Renderer;
 import tracer.scene.Camera;
 import tracer.scene.Display;
@@ -21,25 +21,25 @@ public class Main {
 
     public static void main(String[] args) {
         Scene scene = new Scene(Color.darkGray());
-        Camera camera = new Camera(new Vector3(12, 2, 0), Vector3.zero());
-        Display display = new JDisplay(300, 300);
+        Camera camera = new Camera(new Vector3(12, 0.4f, 0), Vector3.zero());
+        Display display = new JDisplay(600, 600);
 
         //
 
-        Material lightMaterial = new Material(Color.white(), true);
-        Material lightMaterial2 = new Material(Color.white().scale(0.8f), true);
+        Material lightMaterial = new Material(Color.white());
+        Material lightMaterial2 = new Material(Color.white().scale(0.8f));
 
-        Material wallOpaqueMaterial = new Material(Color.white().scale(0.7f), 1, 0, 0);
-        Material opaqueMaterial = new Material(Color.pink(), 1, 0, 0);
-        Material reflexiveMaterial = new Material(Color.yellow().scale(0.75f), 0, 1, 0);
-        Material translucentMaterial = new Material(Color.white(), 0.35f, 0, 1);
-        Material reflexiveAndTranslucentMaterial = new Material(Color.white(), 1, 0.5f, 0.5f);
+        Material wallOpaqueMaterial = new Material(Color.white().scale(0.7f), 1, 0, 0, 0);
+        Material opaqueMaterial = new Material(Color.pink(), 1, 0, 0, 0);
+        Material reflexiveMaterial = new Material(Color.yellow().scale(0.75f), 0, 1, 0, 0);
+        Material translucentMaterial = new Material(Color.white(), 0, 0, 1, 1.03f);
+        Material reflexiveAndTranslucentMaterial = new Material(Color.white(), 1, 0.5f, 0.5f, 1.1f);
 
         //
 
         // Lights
         scene.addModel(new Sphere(new Vector3(12, 12, -12), 1.8f, lightMaterial));
-        //scene.addModel(new Sphere(new Vector3(-12, -12, -12), 0.3f, lightMaterial2));
+        scene.addModel(new Sphere(new Vector3(-12, -12, 12), 0.3f, lightMaterial2));
 
         // Walls
         scene.addModel(new Sphere(new Vector3(10015, 0, 0), 10000, wallOpaqueMaterial));
@@ -63,10 +63,10 @@ public class Main {
         //
 
         JFrame frame = new JFrame();
-        frame.setSize(680, 520);
+        frame.setSize(650, 650);
         frame.add((JDisplay) display);
 
-        Renderer renderer = new PTRenderer(scene, camera, display, Main::frameUpdateConsumer);
+        Renderer renderer = new RTRenderer(scene, camera, display, Main::frameUpdateConsumer);
         renderer.start();
 
         frame.setVisible(true);
