@@ -9,7 +9,6 @@ import tracer.model.Model;
 import tracer.scene.Camera;
 import tracer.scene.Display;
 import tracer.scene.Scene;
-import tracer.util.TTMath;
 
 import java.util.function.Consumer;
 
@@ -35,7 +34,7 @@ public class RTRenderer extends AbstractRenderer {
     }
 
     // Ray tracing internal properties
-    private static final int MAX_RAY_DEPTH = 5;
+    private static final int MAX_RAY_DEPTH = 8;
     //
     private static final float ORIGIN_BIAS = 1e-4f;
     //
@@ -105,16 +104,13 @@ public class RTRenderer extends AbstractRenderer {
             directLightContribution.scale(modelMaterial.getPropagation() / kMax);
         }
 
-        float facingRatio = Vector3.negate(ray.direction).dot(hit.normal);
-        float fresnelEffect = TTMath.interpolate((float) Math.pow(1 - facingRatio, 3), 1, 0.1f);
-
         // Specular contribution
         Color reflectionContribution = Color.black();
         if (modelMaterial.getReflection() > 0) {
             Vector3 reflectionRayDirection = calculateRayReflection(ray.direction, hit.normal);
             Vector3 reflectionRayOrigin = Vector3.orientate(hit.point, reflectionRayDirection, ORIGIN_BIAS);
             reflectionContribution = traceRay(new Ray(reflectionRayOrigin, reflectionRayDirection), rayDepth + 1);
-            reflectionContribution.scale(fresnelEffect * (modelMaterial.getReflection() / kMax));
+            reflectionContribution.scale(modelMaterial.getReflection() / kMax);
         }
 
         // Transmission contribution
@@ -124,7 +120,7 @@ public class RTRenderer extends AbstractRenderer {
                     = calculateRayRefraction(ray.direction, hit.normal, insideModel ? modelMaterial.getRefractiveIndex() : 1 / modelMaterial.getRefractiveIndex());
             Vector3 refractionRayOrigin = Vector3.orientate(hit.point, refractionRayDirection, ORIGIN_BIAS);
             refractionContribution = traceRay(new Ray(refractionRayOrigin, refractionRayDirection), rayDepth + 1);
-            reflectionContribution.scale((1 - fresnelEffect) * (modelMaterial.getRefraction() / kMax));
+            reflectionContribution.scale(modelMaterial.getRefraction() / kMax);
         }
 
         return Color.black().sum(emissionContribution).sum(directLightContribution).sum(reflectionContribution)

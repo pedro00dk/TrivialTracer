@@ -29,11 +29,13 @@ public class Main {
         Material lightMaterial = new Material(Color.white());
         Material lightMaterial2 = new Material(Color.white().scale(0.8f));
 
-        Material wallOpaqueMaterial = new Material(Color.white().scale(0.7f), 1, 0, 0, 0);
-        Material opaqueMaterial = new Material(Color.pink(), 1, 0, 0, 0);
-        Material reflexiveMaterial = new Material(Color.yellow().scale(0.75f), 0, 1, 0, 0);
-        Material translucentMaterial = new Material(Color.white(), 0, 0, 1, 1.03f);
-        Material reflexiveAndTranslucentMaterial = new Material(Color.white(), 1, 0.5f, 0.5f, 1.1f);
+        Material opaqueMaterial1 = new Material(Color.lightGray(), 1, 0, 0, 0);
+        Material opaqueMaterial2 = new Material(Color.pink(), 1, 0, 0, 0);
+
+        Material reflexiveMaterial = new Material(Color.yellow(), 0, 1, 0, 0); // testing color importance
+        Material translucentMaterial = new Material(Color.orange(), 0, 0, 1, 1.1f); // testing color importance
+
+        Material reflexiveAndTranslucentMaterial = new Material(Color.blue(), 1, 1, 1, 1.1f);
 
         //
 
@@ -42,23 +44,25 @@ public class Main {
         scene.addModel(new Sphere(new Vector3(-12, -12, 12), 0.3f, lightMaterial2));
 
         // Walls
-        scene.addModel(new Sphere(new Vector3(10015, 0, 0), 10000, wallOpaqueMaterial));
-        scene.addModel(new Sphere(new Vector3(-10015, 0, 0), 10000, wallOpaqueMaterial));
-        scene.addModel(new Sphere(new Vector3(0, 10015, 0), 10000, wallOpaqueMaterial));
-        scene.addModel(new Sphere(new Vector3(0, -10015, 0), 10000, wallOpaqueMaterial));
-        scene.addModel(new Sphere(new Vector3(0, 0, 10015), 10000, wallOpaqueMaterial));
-        scene.addModel(new Sphere(new Vector3(0, 0, -10015), 10000, wallOpaqueMaterial));
+        scene.addModel(new Sphere(new Vector3(10015, 0, 0), 10000, opaqueMaterial1));
+        scene.addModel(new Sphere(new Vector3(-10015, 0, 0), 10000, opaqueMaterial1));
+        scene.addModel(new Sphere(new Vector3(0, 10015, 0), 10000, opaqueMaterial1));
+        scene.addModel(new Sphere(new Vector3(0, -10015, 0), 10000, opaqueMaterial1));
+        scene.addModel(new Sphere(new Vector3(0, 0, 10015), 10000, opaqueMaterial1));
+        scene.addModel(new Sphere(new Vector3(0, 0, -10015), 10000, opaqueMaterial1));
 
 
         // Some spheres
-        scene.addModel(new Sphere(new Vector3(0, 0, 0), 2, reflexiveMaterial));
+        scene.addModel(new Sphere(new Vector3(0, 0, 0), 2, reflexiveAndTranslucentMaterial));
+
+        scene.addModel(new Sphere(new Vector3(5, 0, 0), 1.3f, reflexiveMaterial));
         scene.addModel(new Sphere(new Vector3(-5, 0, 0), 1.3f, translucentMaterial));
-        scene.addModel(new Sphere(new Vector3(-9, 2, 2), 1.3f, opaqueMaterial));
-        scene.addModel(new Sphere(new Vector3(5, 0, 0), 1.3f, reflexiveAndTranslucentMaterial));
-        scene.addModel(new Sphere(new Vector3(0, -5, 0), 1.3f, opaqueMaterial));
-        scene.addModel(new Sphere(new Vector3(0, 5, 0), 1.3f, opaqueMaterial));
-        scene.addModel(new Sphere(new Vector3(0, 0, -5), 1.3f, opaqueMaterial));
-        scene.addModel(new Sphere(new Vector3(0, 0, 5), 1.3f, opaqueMaterial));
+
+        scene.addModel(new Sphere(new Vector3(-9, 2, 2), 1.3f, opaqueMaterial2));
+        scene.addModel(new Sphere(new Vector3(0, -5, 0), 1.3f, opaqueMaterial2));
+        scene.addModel(new Sphere(new Vector3(0, 5, 0), 1.3f, opaqueMaterial2));
+        scene.addModel(new Sphere(new Vector3(0, 0, -5), 1.3f, opaqueMaterial2));
+        scene.addModel(new Sphere(new Vector3(0, 0, 5), 1.3f, opaqueMaterial2));
 
         //
 
