@@ -72,8 +72,8 @@ public class Scene implements Copyable<Scene> {
     public Scene(List<Model> models, Color backgroundColor) {
         this.models = Objects.requireNonNull(models, "The set of models can not be null.");
         lights = new ArrayList<>();
-        for (Model model : this.models) {
-            if (model.getMaterial().isEmissive() || model.getMaterial().isFullyEmissive()) {
+        for (Model model : models) {
+            if (model.getMaterial().isEmissive()) {
                 lights.add(model);
             }
         }
@@ -92,7 +92,7 @@ public class Scene implements Copyable<Scene> {
      */
     public void addModel(Model model) {
         models.add(Objects.requireNonNull(model, "The model can not be null."));
-        if (model.getMaterial().isEmissive() || model.getMaterial().isFullyEmissive()) {
+        if (model.getMaterial().isEmissive()) {
             lights.add(model);
         }
     }
