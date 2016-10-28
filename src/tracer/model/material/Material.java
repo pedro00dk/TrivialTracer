@@ -102,7 +102,7 @@ public class Material implements Copyable<Material> {
      * @param refraction   the refraction of the visual (should be between than 0 and 1)
      */
     public Material(Color surfaceColor, float propagation, float reflection, float refraction, float refractiveIndex) {
-        this(surfaceColor, Color.black(), false, propagation, reflection, refraction, refractiveIndex);
+        this(surfaceColor, DEFAULT_EMISSIVE_COLOR.copy(), false, propagation, reflection, refraction, refractiveIndex);
     }
 
     /**
@@ -111,7 +111,7 @@ public class Material implements Copyable<Material> {
      * @param emissiveColor the emissive color
      */
     public Material(Color emissiveColor) {
-        this(Color.black(), emissiveColor, true, 0, 0, 0, 1);
+        this(DEFAULT_SURFACE_COLOR.copy(), emissiveColor, true, 0, 0, 0, 1);
     }
 
     /**

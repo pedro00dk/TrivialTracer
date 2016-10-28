@@ -13,7 +13,7 @@ import java.util.Random;
  *
  * @author Pedro Henrique
  */
-public class Sphere implements Model {
+public class Sphere extends AbstractModel {
 
     /**
      * The center of the sphere.
@@ -26,11 +26,6 @@ public class Sphere implements Model {
     private float radius;
 
     /**
-     * The visual of this sphere.
-     */
-    private Material material;
-
-    /**
      * The default center of the sphere.
      */
     private static final Vector3 DEFAULT_CENTER = Vector3.zero();
@@ -41,61 +36,56 @@ public class Sphere implements Model {
     private static final float DEFAULT_RADIUS = 1;
 
     /**
-     * The default visual of the sphere.
-     */
-    private static final Material DEFAULT_MATERIAL = new Material();
-
-    /**
-     * Create the sphere in origin (0, 0, 0) with radius 1 and default visual.
+     * Create the sphere in origin (0, 0, 0) with radius 1 and default material.
      */
     public Sphere() {
-        this(DEFAULT_CENTER, DEFAULT_RADIUS, DEFAULT_MATERIAL);
+        this(DEFAULT_CENTER.copy(), DEFAULT_RADIUS);
     }
 
     /**
-     * Create the sphere with the received center position and radius 1 and default visual.
+     * Create the sphere with the received center position and radius 1 and default material.
      *
      * @param center the sphere center position
      */
     public Sphere(Vector3 center) {
-        this(center, DEFAULT_RADIUS, DEFAULT_MATERIAL);
+        this(center, DEFAULT_RADIUS);
     }
 
     /**
      * Create the sphere with the center in the origin (0, 0, 0) and the received radius, should be greater than 0
-     * and default visual (new Material()).
+     * and default material (new Material()).
      *
      * @param radius the sphere radius
      */
     public Sphere(float radius) {
-        this(DEFAULT_CENTER, radius, DEFAULT_MATERIAL);
+        this(DEFAULT_CENTER, radius);
     }
 
     /**
-     * Create the sphere with the received center position and radius, should be greater than 0, and default visual.
+     * Create the sphere with the received center position and radius, should be greater than 0, and default material.
      *
      * @param center the sphere center position
      * @param radius the sphere radius
      */
     public Sphere(Vector3 center, float radius) {
-        this(center, radius, DEFAULT_MATERIAL);
+        this(center, radius, DEFAULT_MATERIAL.copy());
     }
 
     /**
      * Create the sphere with the received center position and radius, should be greater than 0  and the received
-     * visual (cannot be null).
+     * material (cannot be null).
      *
      * @param center   the sphere center position
      * @param radius   the sphere radius
-     * @param material the sphere visual
+     * @param material the sphere material
      */
     public Sphere(Vector3 center, float radius, Material material) {
+        super(material);
         this.center = Objects.requireNonNull(center, "The center can not be null.");
         if (radius <= 0) {
             throw new IllegalArgumentException("The radius should be greater than 0.");
         }
         this.radius = radius;
-        this.material = Objects.requireNonNull(material);
     }
 
     @Override
