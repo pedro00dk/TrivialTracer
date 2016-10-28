@@ -1,4 +1,4 @@
-package tracer.data;
+package tracer.data.base;
 
 import tracer.util.Copyable;
 

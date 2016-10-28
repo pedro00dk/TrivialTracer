@@ -1,6 +1,6 @@
 package tracer.data.trace;
 
-import tracer.data.Vector3;
+import tracer.data.base.Vector3;
 
 /**
  * Represents a ray, with an origin and direction vectors, this vectors are used in hit checking. Due the low lifetime

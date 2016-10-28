@@ -1,24 +1,24 @@
-package tracer.data;
+package tracer.data.base;
 
 import tracer.util.Copyable;
 
 /**
- * Represents a 4-dimension vector used to store positions and transforms.
+ * Represents a 3-dimension vector used to store positions and transforms.
  * <p>
  * About the methods in this class:
  * <p>
- * The instance methods that returns a Vector4 (except for the {@link #copy()} method) will always change the instance
+ * The instance methods that returns a Vector3 (except for the {@link #copy()} method) will always change the instance
  * that calls the method and returns itself.
  * <p>
- * For each instance method that returns a Vector4, exists an equivalent static method that returns a modified copy,
+ * For each instance method that returns a Vector3, exists an equivalent static method that returns a modified copy,
  * except for the current methods:
  * <p>
- * {@link #copy()}, the {@link #set(float, float, float, float)}, {@link #subI(Vector4)}, {@link #projectI(Vector4)},
- * {@link #rejectI(Vector4)} and {@link #orientateI(Vector4, float)}
+ * {@link #copy()}, the {@link #set(float, float, float)}, {@link #subI(Vector3)}, {@link #crossI(Vector3)},
+ * {@link #projectI(Vector3)}, {@link #rejectI(Vector3)} and {@link #orientateI(Vector3, float)}
  *
  * @author Pedro Henrique
  */
-public class Vector4 implements Copyable<Vector4> {
+public class Vector3 implements Copyable<Vector3> {
 
     /**
      * The X component of this vector.
@@ -36,19 +36,12 @@ public class Vector4 implements Copyable<Vector4> {
     public float z;
 
     /**
-     * The w component of this vector.
-     */
-    public float w;
-
-
-    /**
      * Creates a vector with 0 in all components.
      */
-    public Vector4() {
+    public Vector3() {
         x = 0;
         y = 0;
         z = 0;
-        w = 0;
     }
 
     /**
@@ -57,22 +50,19 @@ public class Vector4 implements Copyable<Vector4> {
      * @param x the X component value
      * @param y ths Y component value
      * @param z the Z component value
-     * @param w the W component value
      */
-    public Vector4(float x, float y, float z, float w) {
+    public Vector3(float x, float y, float z) {
         this.x = x;
         this.y = y;
         this.z = z;
-        this.w = w;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Vector4 vector4 = (Vector4) o;
-        return Float.compare(vector4.x, x) == 0 && Float.compare(vector4.y, y) == 0 && Float.compare(vector4.z, z) == 0
-                && Float.compare(vector4.w, w) == 0;
+        Vector3 vector3 = (Vector3) o;
+        return Float.compare(vector3.x, x) == 0 && Float.compare(vector3.y, y) == 0 && Float.compare(vector3.z, z) == 0;
     }
 
     @Override
@@ -80,7 +70,6 @@ public class Vector4 implements Copyable<Vector4> {
         int result = (x != +0.0f ? Float.floatToIntBits(x) : 0);
         result = 31 * result + (y != +0.0f ? Float.floatToIntBits(y) : 0);
         result = 31 * result + (z != +0.0f ? Float.floatToIntBits(z) : 0);
-        result = 31 * result + (w != +0.0f ? Float.floatToIntBits(w) : 0);
         return result;
     }
 
@@ -90,8 +79,8 @@ public class Vector4 implements Copyable<Vector4> {
     }
 
     @Override
-    public Vector4 copy() {
-        return new Vector4(x, y, z, w);
+    public Vector3 copy() {
+        return new Vector3(x, y, z);
     }
 
     /**
@@ -100,14 +89,12 @@ public class Vector4 implements Copyable<Vector4> {
      * @param x the X component value
      * @param y the Y component value
      * @param z the Z component value
-     * @param w the W component value
      * @return this vector modified.
      */
-    public Vector4 set(float x, float y, float z, float w) {
+    public Vector3 set(float x, float y, float z) {
         this.x = x;
         this.y = y;
         this.z = z;
-        this.w = w;
         return this;
     }
 
@@ -131,35 +118,34 @@ public class Vector4 implements Copyable<Vector4> {
      * @see #mag()
      */
     public float sqrMag() {
-        return x * x + y * y + z * z + w * w;
+        return x * x + y * y + z * z;
     }
 
     /**
-     * Returns the distance of this vector and the received. Verify is if possible use {@link #sqrDist(Vector4)} instead
-     * this method, because is more faster, this method calls the {@link #sqrDist(Vector4)} methods.
+     * Returns the distance of this vector and the received. Verify is if possible use {@link #sqrDist(Vector3)} instead
+     * this method, because is more faster, this method calls the {@link #sqrDist(Vector3)} methods.
      *
      * @param other the vector to be used in the distance calculation (treated as a point)
      * @return the distance between this and the received vector
-     * @see #sqrDist(Vector4)
+     * @see #sqrDist(Vector3)
      */
-    public float dist(Vector4 other) {
+    public float dist(Vector3 other) {
         return (float) Math.sqrt(sqrDist(other));
     }
 
     /**
-     * Returns the squared distance of this vector and the received. Is more faster than the {@link #dist(Vector4)}
+     * Returns the squared distance of this vector and the received. Is more faster than the {@link #dist(Vector3)}
      * method.
      *
      * @param other the vector to be used in the square distance calculation (treated as a point)
      * @return the square distance between this and the received vector
-     * @see #dist(Vector4)
+     * @see #dist(Vector3)
      */
-    public float sqrDist(Vector4 other) {
+    public float sqrDist(Vector3 other) {
         float dx = other.x - x;
         float dy = other.y - y;
         float dz = other.z - z;
-        float dw = other.w - w;
-        return dx * dx + dy * dy + dz * dz + dw * dw;
+        return dx * dx + dy * dy + dz * dz;
     }
 
     /**
@@ -168,35 +154,35 @@ public class Vector4 implements Copyable<Vector4> {
      * @param other the vector to be used in the dot calculation
      * @return the dot product between this and the received vector
      */
-    public float dot(Vector4 other) {
-        return x * other.x + y * other.y + z * other.z + w * other.w;
+    public float dot(Vector3 other) {
+        return x * other.x + y * other.y + z * other.z;
     }
 
     /**
      * Returns the cosine between this and the received vectors. The cosine is derived using the dot product formula
-     * (see {@link #dot(Vector4)} method). This method uses the {@link #dot(Vector4)} and {@link #mag()} methods.
+     * (see {@link #dot(Vector3)} method). This method uses the {@link #dot(Vector3)} and {@link #mag()} methods.
      *
      * @param other the vector to be used in the cosine calculation
      * @return the cosine between this and the received vectors
-     * @see #dot(Vector4)
+     * @see #dot(Vector3)
      * @see #mag()
-     * @see #sin(Vector4)
-     * @see #angle(Vector4)
+     * @see #sin(Vector3)
+     * @see #angle(Vector3)
      */
-    public float cos(Vector4 other) {
+    public float cos(Vector3 other) {
         return dot(other) / mag() * other.mag();
     }
 
     /**
-     * Returns the sine between the received vectors. Verify is is possible use the {@link #cos(Vector4)} method instead
-     * this, because is more faster, this method uses the {@link #cos(Vector4)} method.
+     * Returns the sine between the received vectors. Verify is is possible use the {@link #cos(Vector3)} method instead
+     * this, because is more faster, this method uses the {@link #cos(Vector3)} method.
      *
      * @param other the vector to be used in the sine calculation.
      * @return the sine between this and the received vectors.
-     * @see #cos(Vector4)
-     * @see #angle(Vector4)
+     * @see #cos(Vector3)
+     * @see #angle(Vector3)
      */
-    public float sin(Vector4 other) {
+    public float sin(Vector3 other) {
         float cos = cos(other);
         return (float) Math.sqrt(1 - cos * cos);
     }
@@ -207,14 +193,14 @@ public class Vector4 implements Copyable<Vector4> {
      *
      * @param other the vector to be used in the angle calculation.
      * @return the angle (in radians) between this and the received vectors.
-     * @see #sin(Vector4)
-     * @see #cos(Vector4)
+     * @see #sin(Vector3)
+     * @see #cos(Vector3)
      */
-    public float angle(Vector4 other) {
+    public float angle(Vector3 other) {
         return (float) Math.acos(cos(other));
     }
 
-    // Vector4 operations
+    // Vector3 operations
 
     /**
      * Sums the received vector in this and return this vector modified. The received vector is not modified.
@@ -222,11 +208,10 @@ public class Vector4 implements Copyable<Vector4> {
      * @param other the vector to sum with this
      * @return this vector modified
      */
-    public Vector4 sum(Vector4 other) {
+    public Vector3 sum(Vector3 other) {
         x += other.x;
         y += other.y;
         z += other.z;
-        w += other.w;
         return this;
     }
 
@@ -235,13 +220,12 @@ public class Vector4 implements Copyable<Vector4> {
      *
      * @param other the vector to subtract from this
      * @return this vector modified
-     * @see #subI(Vector4)
+     * @see #subI(Vector3)
      */
-    public Vector4 sub(Vector4 other) {
+    public Vector3 sub(Vector3 other) {
         x -= other.x;
         y -= other.y;
         z -= other.z;
-        w -= other.w;
         return this;
     }
 
@@ -251,13 +235,12 @@ public class Vector4 implements Copyable<Vector4> {
      *
      * @param other the vector to be subtracted from this
      * @return this vector modified
-     * @see #sub(Vector4)
+     * @see #sub(Vector3)
      */
-    public Vector4 subI(Vector4 other) {
+    public Vector3 subI(Vector3 other) {
         x = other.x - x;
         y = other.y - y;
         z = other.z - z;
-        w = other.w - w;
         return this;
     }
 
@@ -269,11 +252,10 @@ public class Vector4 implements Copyable<Vector4> {
      * @return this vector modified
      * @see #scale(float)
      */
-    public Vector4 mul(Vector4 other) {
+    public Vector3 mul(Vector3 other) {
         x *= other.x;
         y *= other.y;
         z *= other.z;
-        w *= other.w;
         return this;
     }
 
@@ -282,15 +264,14 @@ public class Vector4 implements Copyable<Vector4> {
      *
      * @param scalar the value to scale the components
      * @return the vector scaled by the received scalar
-     * @see #mul(Vector4)
+     * @see #mul(Vector3)
      * @see #negate()
      * @see #normalize()
      */
-    public Vector4 scale(float scalar) {
+    public Vector3 scale(float scalar) {
         x *= scalar;
         y *= scalar;
         z *= scalar;
-        w *= scalar;
         return this;
     }
 
@@ -300,11 +281,10 @@ public class Vector4 implements Copyable<Vector4> {
      * @return this vector negated
      * @see #scale(float)
      */
-    public Vector4 negate() {
+    public Vector3 negate() {
         x = -x;
         y = -y;
         z = -z;
-        w = -w;
         return this;
     }
 
@@ -319,7 +299,7 @@ public class Vector4 implements Copyable<Vector4> {
      * @throws UnsupportedOperationException if the vector is null (magnitude equals 0)
      * @see #scale(float)
      */
-    public Vector4 normalize() {
+    public Vector3 normalize() {
         float mag = mag();
         if (mag == 0) {
             throw new UnsupportedOperationException("Can not normalize a null vector.");
@@ -328,22 +308,51 @@ public class Vector4 implements Copyable<Vector4> {
     }
 
     /**
+     * Returns the cross product between this and the received vectors. The received vector is not modified, this
+     * vector received the cross product result.
+     *
+     * @param other the vector to calculate the cross product with this
+     * @return this vector modified
+     */
+    public Vector3 cross(Vector3 other) {
+        return set(
+                this.y * other.z - this.z * other.y,
+                this.z * other.x - this.x * other.z,
+                this.x * other.y - this.y * other.x
+        );
+    }
+
+    /**
+     * Returns the cross product between this and the received vectors (inverted cross product). The received vector
+     * is not modified, this vector received the cross product result.
+     *
+     * @param other the vector to calculate the cross product with this
+     * @return this vector modified
+     */
+    public Vector3 crossI(Vector3 other) {
+        return set(
+                other.y * this.z - other.z * this.y,
+                other.z * this.x - other.x * this.z,
+                other.x * this.y - other.y - this.x
+        );
+    }
+
+    /**
      * Projects this vector over the received vector, this vector receives the result.
      *
      * @param other the vector to project over
      * @return this vector modified
-     * @see #projectI(Vector4)
-     * @see #reject(Vector4)
-     * @see #rejectI(Vector4)
-     * @see #dot(Vector4)
+     * @see #projectI(Vector3)
+     * @see #reject(Vector3)
+     * @see #rejectI(Vector3)
+     * @see #dot(Vector3)
      * @see #mag()
      */
-    public Vector4 project(Vector4 other) {
+    public Vector3 project(Vector3 other) {
         float scalar = dot(other) / other.sqrMag();
         x = other.x * scalar;
         y = other.y * scalar;
         z = other.z * scalar;
-        w = other.w * scalar;
         return this;
     }
 
@@ -352,18 +361,17 @@ public class Vector4 implements Copyable<Vector4> {
      *
      * @param other the vector be projected
      * @return this vector modified
-     * @see #project(Vector4)
-     * @see #reject(Vector4)
-     * @see #rejectI(Vector4)
-     * @see #dot(Vector4)
+     * @see #project(Vector3)
+     * @see #reject(Vector3)
+     * @see #rejectI(Vector3)
+     * @see #dot(Vector3)
      * @see #mag()
      */
-    public Vector4 projectI(Vector4 other) {
+    public Vector3 projectI(Vector3 other) {
         float scalar = other.dot(this) / sqrMag();
         x *= scalar;
         y *= scalar;
         z *= scalar;
-        w *= scalar;
         return this;
     }
 
@@ -373,18 +381,17 @@ public class Vector4 implements Copyable<Vector4> {
      *
      * @param other the vector to reject over
      * @return this vector modified
-     * @see #rejectI(Vector4)
-     * @see #project(Vector4)
-     * @see #projectI(Vector4)
-     * @see #dot(Vector4)
+     * @see #rejectI(Vector3)
+     * @see #project(Vector3)
+     * @see #projectI(Vector3)
+     * @see #dot(Vector3)
      * @see #mag()
      */
-    public Vector4 reject(Vector4 other) {
+    public Vector3 reject(Vector3 other) {
         float scalar = dot(other) / other.sqrMag();
         x -= other.x * scalar;
         y -= other.y * scalar;
         z -= other.z * scalar;
-        w -= other.w * scalar;
         return this;
     }
 
@@ -394,18 +401,17 @@ public class Vector4 implements Copyable<Vector4> {
      *
      * @param other the vector to reject over
      * @return this vector modified (received the rejection result)
-     * @see #reject(Vector4)
-     * @see #project(Vector4)
-     * @see #projectI(Vector4)
-     * @see #dot(Vector4)
+     * @see #reject(Vector3)
+     * @see #project(Vector3)
+     * @see #projectI(Vector3)
+     * @see #dot(Vector3)
      * @see #mag()
      */
-    public Vector4 rejectI(Vector4 other) {
+    public Vector3 rejectI(Vector3 other) {
         float scalar = other.dot(this) / sqrMag();
         x = other.x - x * scalar;
         y = other.y - y * scalar;
         z = other.z - z * scalar;
-        w = other.w - w * scalar;
         return this;
     }
 
@@ -422,13 +428,12 @@ public class Vector4 implements Copyable<Vector4> {
      * @param other    the vector to interpolate with this
      * @param gradient the interpolation value
      * @return this vector modified
-     * @see #orientate(Vector4, float)
+     * @see #orientate(Vector3, float)
      */
-    public Vector4 interpolate(Vector4 other, float gradient) {
+    public Vector3 interpolate(Vector3 other, float gradient) {
         x = x * (1 - gradient) + other.x * gradient;
         y = y * (1 - gradient) + other.y * gradient;
         z = z * (1 - gradient) + other.z * gradient;
-        w = w * (1 - gradient) + other.w * gradient;
         return this;
     }
 
@@ -439,13 +444,12 @@ public class Vector4 implements Copyable<Vector4> {
      * @param other  the direction vector
      * @param scalar the direction scalar
      * @return this vector modified
-     * @see #interpolate(Vector4, float)
+     * @see #interpolate(Vector3, float)
      */
-    public Vector4 orientate(Vector4 other, float scalar) {
+    public Vector3 orientate(Vector3 other, float scalar) {
         x += other.x * scalar;
         y += other.y * scalar;
         z += other.z * scalar;
-        w += other.w * scalar;
         return this;
     }
 
@@ -456,54 +460,53 @@ public class Vector4 implements Copyable<Vector4> {
      * @param other  the origin point vector
      * @param scalar the direction scalar
      * @return this vector modified
-     * @see #interpolate(Vector4, float)
+     * @see #interpolate(Vector3, float)
      */
-    public Vector4 orientateI(Vector4 other, float scalar) {
+    public Vector3 orientateI(Vector3 other, float scalar) {
         x = other.x + x * scalar;
         y = other.y + y * scalar;
         z = other.z + z * scalar;
-        w = other.w + w * scalar;
         return this;
     }
 
     // Static vector operations
 
     /**
-     * This method has the same behaviour of the instance method {@link #sum(Vector4)}, but does not modify the received
+     * This method has the same behaviour of the instance method {@link #sum(Vector3)}, but does not modify the received
      * vectors.
      *
      * @param v1 the vector to operate
      * @param v2 the vector to operate
      * @return the sum between the received vectors
-     * @see #sum(Vector4)
+     * @see #sum(Vector3)
      */
-    public static Vector4 sum(Vector4 v1, Vector4 v2) {
+    public static Vector3 sum(Vector3 v1, Vector3 v2) {
         return v1.copy().sum(v2);
     }
 
     /**
-     * This method has the same behaviour of the instance method {@link #sub(Vector4)}, but does not modify the received
+     * This method has the same behaviour of the instance method {@link #sub(Vector3)}, but does not modify the received
      * vectors.
      *
      * @param v1 the vector to operate
      * @param v2 the vector to operate
      * @return the subtraction of the first over the second vector
-     * @see #sub(Vector4)
+     * @see #sub(Vector3)
      */
-    public static Vector4 sub(Vector4 v1, Vector4 v2) {
+    public static Vector3 sub(Vector3 v1, Vector3 v2) {
         return v1.copy().sub(v2);
     }
 
     /**
-     * This method has the same behaviour of the instance method {@link #mul(Vector4)}, but does not modify the received
+     * This method has the same behaviour of the instance method {@link #mul(Vector3)}, but does not modify the received
      * vectors.
      *
      * @param v1 the vector to operate
      * @param v2 the vector to operate
      * @return the component multiplication between the received vectors
-     * @see #mul(Vector4)
+     * @see #mul(Vector3)
      */
-    public static Vector4 mul(Vector4 v1, Vector4 v2) {
+    public static Vector3 mul(Vector3 v1, Vector3 v2) {
         return v1.copy().mul(v2);
     }
 
@@ -516,7 +519,7 @@ public class Vector4 implements Copyable<Vector4> {
      * @return a copy of the received vector scaled
      * @see #scale(float)
      */
-    public static Vector4 scale(Vector4 v, float s) {
+    public static Vector3 scale(Vector3 v, float s) {
         return v.copy().scale(s);
     }
 
@@ -528,7 +531,7 @@ public class Vector4 implements Copyable<Vector4> {
      * @return a copy of the received vector normalized
      * @see #negate()
      */
-    public static Vector4 negate(Vector4 v) {
+    public static Vector3 negate(Vector3 v) {
         return v.copy().negate();
     }
 
@@ -540,61 +543,74 @@ public class Vector4 implements Copyable<Vector4> {
      * @return a copy of the received vector normalized
      * @see #normalize()
      */
-    public static Vector4 normalize(Vector4 v) {
+    public static Vector3 normalize(Vector3 v) {
         return v.copy().normalize();
     }
 
     /**
-     * This method has the same behaviour of the instance method {@link #project(Vector4)}, but does not modify the
+     * This method has the same behaviour of the instance method {@link #cross(Vector3)}, but does not modify the
+     * received vectors.
+     *
+     * @param v1 the vector to calculate the cross product
+     * @param v2 the vector to calculate the cross product
+     * @return the cross product of the received vectors
+     * @see #cross(Vector3)
+     */
+    public static Vector3 cross(Vector3 v1, Vector3 v2) {
+        return v1.copy().cross(v2);
+    }
+
+    /**
+     * This method has the same behaviour of the instance method {@link #project(Vector3)}, but does not modify the
      * received vectors.
      *
      * @param v1 the projection vector
      * @param v2 the base vector
      * @return the projection of the first vector over the second
-     * @see #project(Vector4)
+     * @see #project(Vector3)
      */
-    public static Vector4 project(Vector4 v1, Vector4 v2) {
+    public static Vector3 project(Vector3 v1, Vector3 v2) {
         return v1.copy().project(v2);
     }
 
     /**
-     * This method has the same behaviour of the instance method {@link #reject(Vector4)}, but does not modify the
+     * This method has the same behaviour of the instance method {@link #reject(Vector3)}, but does not modify the
      * received vectors.
      *
      * @param v1 the projection vector
      * @param v2 the base vector
      * @return the rejection of the first vector over the second
-     * @see #reject(Vector4)
+     * @see #reject(Vector3)
      */
-    public static Vector4 reject(Vector4 v1, Vector4 v2) {
+    public static Vector3 reject(Vector3 v1, Vector3 v2) {
         return v1.copy().reject(v2);
     }
 
     /**
-     * This method has the same behaviour of the instance method {@link #interpolate(Vector4, float)}, but does not
+     * This method has the same behaviour of the instance method {@link #interpolate(Vector3, float)}, but does not
      * modify the received vectors.
      *
      * @param v1 the vector to operate
      * @param v2 the vector to operate
      * @param g  the gradient value
      * @return the interpolation (or extrapolation) of the received vectors and the gradient
-     * @see #interpolate(Vector4, float)
+     * @see #interpolate(Vector3, float)
      */
-    public static Vector4 interpolate(Vector4 v1, Vector4 v2, float g) {
+    public static Vector3 interpolate(Vector3 v1, Vector3 v2, float g) {
         return v1.copy().interpolate(v2, g);
     }
 
     /**
-     * This method has the same behaviour of the instance method {@link #orientate(Vector4, float)}, but does not modify
+     * This method has the same behaviour of the instance method {@link #orientate(Vector3, float)}, but does not modify
      * the received vectors.
      *
      * @param v1 the origin vector
      * @param v2 the direction vector
      * @param s  the direction scalar
      * @return the origin vector summed with the direction vector scaled
-     * @see #orientate(Vector4, float)
+     * @see #orientate(Vector3, float)
      */
-    public static Vector4 orientate(Vector4 v1, Vector4 v2, float s) {
+    public static Vector3 orientate(Vector3 v1, Vector3 v2, float s) {
         return v1.copy().orientate(v2, s);
     }
 
@@ -605,17 +621,8 @@ public class Vector4 implements Copyable<Vector4> {
      *
      * @return a 0 vector
      */
-    public static Vector4 lZero() {
-        return linear(0, 0, 0);
-    }
-
-    /**
-     * Returns an affine 0 vector.
-     *
-     * @return an affine 0 vector
-     */
-    public static Vector4 aZero() {
-        return affine(0, 0, 0);
+    public static Vector3 zero() {
+        return new Vector3(0, 0, 0);
     }
 
     /**
@@ -623,17 +630,8 @@ public class Vector4 implements Copyable<Vector4> {
      *
      * @return a 1 vector
      */
-    public static Vector4 lOne() {
-        return linear(1, 1, 1);
-    }
-
-    /**
-     * Returns an affine 1 vector.
-     *
-     * @return an affine 1 vector
-     */
-    public static Vector4 aOne() {
-        return affine(1, 1, 1);
+    public static Vector3 one() {
+        return new Vector3(1, 1, 1);
     }
 
     /**
@@ -641,17 +639,8 @@ public class Vector4 implements Copyable<Vector4> {
      *
      * @return a left vector
      */
-    public static Vector4 lLeft() {
-        return linear(-1, 0, 0);
-    }
-
-    /**
-     * Returns an affine left vector.
-     *
-     * @return an affine left vector
-     */
-    public static Vector4 aLeft() {
-        return affine(-1, 0, 0);
+    public static Vector3 left() {
+        return new Vector3(-1, 0, 0);
     }
 
     /**
@@ -659,17 +648,8 @@ public class Vector4 implements Copyable<Vector4> {
      *
      * @return a right vector
      */
-    public static Vector4 lRight() {
-        return linear(1, 0, 0);
-    }
-
-    /**
-     * Returns an affine right vector.
-     *
-     * @return an affine right vector
-     */
-    public static Vector4 aRight() {
-        return affine(1, 0, 0);
+    public static Vector3 right() {
+        return new Vector3(1, 0, 0);
     }
 
     /**
@@ -677,17 +657,8 @@ public class Vector4 implements Copyable<Vector4> {
      *
      * @return a down vector
      */
-    public static Vector4 lDown() {
-        return linear(0, -1, 0);
-    }
-
-    /**
-     * Returns an affine down vector.
-     *
-     * @return an affine down vector
-     */
-    public static Vector4 aDown() {
-        return affine(0, -1, 0);
+    public static Vector3 down() {
+        return new Vector3(0, -1, 0);
     }
 
     /**
@@ -695,17 +666,8 @@ public class Vector4 implements Copyable<Vector4> {
      *
      * @return a up vector
      */
-    public static Vector4 lUp() {
-        return linear(0, 1, 0);
-    }
-
-    /**
-     * Returns an affine up vector.
-     *
-     * @return an affine up vector
-     */
-    public static Vector4 aUp() {
-        return affine(0, 1, 0);
+    public static Vector3 up() {
+        return new Vector3(0, 1, 0);
     }
 
     /**
@@ -713,17 +675,8 @@ public class Vector4 implements Copyable<Vector4> {
      *
      * @return a back vector
      */
-    public static Vector4 lBack() {
-        return linear(0, 0, -1);
-    }
-
-    /**
-     * Returns an affine back vector.
-     *
-     * @return an affine back vector
-     */
-    public static Vector4 aBack() {
-        return affine(0, 0, -1);
+    public static Vector3 back() {
+        return new Vector3(0, 0, -1);
     }
 
     /**
@@ -731,42 +684,7 @@ public class Vector4 implements Copyable<Vector4> {
      *
      * @return a forward vector
      */
-    public static Vector4 lForward() {
-        return linear(0, 0, 1);
-    }
-
-    /**
-     * Returns an affine forward vector.
-     *
-     * @return an affine forward vector
-     */
-    public static Vector4 aForward() {
-        return affine(0, 0, 1);
-    }
-
-    // Static vector generators
-
-    /**
-     * Creates a linear vector with the received components, thw W component is set to 0.
-     *
-     * @param x the X component value
-     * @param y the Y component value
-     * @param z the Z component value
-     * @return a linear vector
-     */
-    public static Vector4 linear(float x, float y, float z) {
-        return new Vector4(x, y, z, 0);
-    }
-
-    /**
-     * Creates an affine vector with the received components, thw W component is set to 1.
-     *
-     * @param x the X component value
-     * @param y the Y component value
-     * @param z the Z component value
-     * @return an affine vector
-     */
-    public static Vector4 affine(float x, float y, float z) {
-        return new Vector4(x, y, z, 1);
+    public static Vector3 forward() {
+        return new Vector3(0, 0, 1);
     }
 }

@@ -1,7 +1,7 @@
 package tracer.scene;
 
-import tracer.data.Matrix4;
-import tracer.data.Vector3;
+import tracer.data.base.Matrix4;
+import tracer.data.base.Vector3;
 import tracer.util.Copyable;
 
 import java.util.Objects;
@@ -104,7 +104,7 @@ public class Camera implements Copyable<Camera> {
      * @param position the position of the camera
      * @param target   the target of the camera, should be different of the position
      * @param up       the direction of the camera, the magnitude should be greater than 0
-     * @param fovy     the vertical field of view of the camera in radians, should between 180
+     * @param fovy     the vertical field of view of the camera in radians, should between 0 and PI
      */
     public Camera(Vector3 position, Vector3 target, Vector3 up, float fovy) {
         Objects.requireNonNull(position, "The camera position can not be null.");

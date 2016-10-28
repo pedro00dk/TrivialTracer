@@ -1,9 +1,9 @@
 package tracer.model;
 
-import tracer.data.Vector3;
-import tracer.data.material.Material;
+import tracer.data.base.Vector3;
 import tracer.data.trace.Hit;
 import tracer.data.trace.Ray;
+import tracer.model.material.Material;
 import tracer.util.Copyable;
 
 /**
@@ -50,9 +50,9 @@ public interface Model extends Copyable<Model> {
     Vector3[] getSurfacePoints(int count);
 
     /**
-     * Gets the material of this model.
+     * Gets the visual of this model.
      *
-     * @return the material of this model
+     * @return the visual of this model
      */
     Material getMaterial();
 

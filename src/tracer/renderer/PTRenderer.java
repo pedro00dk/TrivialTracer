@@ -1,9 +1,9 @@
 package tracer.renderer;
 
-import tracer.data.Matrix4;
-import tracer.data.Vector3;
-import tracer.data.material.Color;
-import tracer.data.material.Material;
+import tracer.data.base.Matrix4;
+import tracer.data.base.Vector3;
+import tracer.data.visual.Color;
+import tracer.model.material.Material;
 import tracer.data.trace.Hit;
 import tracer.data.trace.Ray;
 import tracer.model.Model;
@@ -103,7 +103,7 @@ public class PTRenderer extends AbstractRenderer {
         }
 
         // If an intersection happens
-        Material modelMaterial = hit.model.getMaterial(); // The hit model material
+        Material modelMaterial = hit.model.getMaterial(); // The hit model visual
 
         // Check if is inside the model
         boolean insideModel = false;

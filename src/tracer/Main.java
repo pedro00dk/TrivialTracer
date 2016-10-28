@@ -1,10 +1,10 @@
 package tracer;
 
-import tracer.data.Matrix4;
-import tracer.data.Vector3;
-import tracer.data.material.Color;
-import tracer.data.material.Material;
+import tracer.data.base.Matrix4;
+import tracer.data.base.Vector3;
+import tracer.data.visual.Color;
 import tracer.model.Sphere;
+import tracer.model.material.Material;
 import tracer.renderer.RTRenderer;
 import tracer.renderer.Renderer;
 import tracer.scene.Camera;
@@ -20,8 +20,8 @@ import javax.swing.*;
 public class Main {
 
     public static void main(String[] args) {
-        Scene scene = new Scene(Color.darkGray());
-        Camera camera = new Camera(new Vector3(12, 0.4f, 0), Vector3.zero());
+        Scene scene = new Scene(Color.black());
+        Camera camera = new Camera(new Vector3(0, 0, 12), Vector3.zero(), Vector3.up(), (float) Math.toRadians(65));
         Display display = new JDisplay(600, 600);
 
         //
@@ -41,7 +41,7 @@ public class Main {
 
         // Lights
         scene.addModel(new Sphere(new Vector3(12, 12, -12), 1.8f, lightMaterial));
-        scene.addModel(new Sphere(new Vector3(-12, -12, 12), 0.3f, lightMaterial2));
+        scene.addModel(new Sphere(new Vector3(-12, -12, -12), 0.3f, lightMaterial2));
 
         // Walls
         scene.addModel(new Sphere(new Vector3(10015, 0, 0), 10000, opaqueMaterial1));
@@ -64,8 +64,6 @@ public class Main {
         scene.addModel(new Sphere(new Vector3(0, 0, -5), 1.3f, opaqueMaterial2));
         scene.addModel(new Sphere(new Vector3(0, 0, 5), 1.3f, opaqueMaterial2));
 
-        //
-
         JFrame frame = new JFrame();
         frame.setSize(650, 650);
         frame.add((JDisplay) display);
@@ -77,6 +75,7 @@ public class Main {
     }
 
     static void frameUpdateConsumer(Renderer r) {
+
         Vector3 cameraPosition = r.getCamera().getPosition();
         r.getCamera().setPosition(
                 Matrix4.rotationY(
@@ -84,5 +83,6 @@ public class Main {
                 ).transformAsPoint(cameraPosition)
         );
         System.out.println(r.getFrameRate());
+
     }
 }

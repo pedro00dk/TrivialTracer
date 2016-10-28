@@ -1,8 +1,8 @@
 package tracer.renderer;
 
-import tracer.data.Vector3;
-import tracer.data.material.Color;
-import tracer.data.material.Material;
+import tracer.data.base.Vector3;
+import tracer.data.visual.Color;
+import tracer.model.material.Material;
 import tracer.data.trace.Hit;
 import tracer.data.trace.Ray;
 import tracer.model.Model;
@@ -67,7 +67,7 @@ public class RTRenderer extends AbstractRenderer {
         }
 
         // If an intersection happens
-        Material modelMaterial = hit.model.getMaterial(); // The hit model material
+        Material modelMaterial = hit.model.getMaterial(); // The hit model visual
         float kMax = modelMaterial.getPropagation() + modelMaterial.getReflection() + modelMaterial.getRefraction();
 
         // Check if is inside the model

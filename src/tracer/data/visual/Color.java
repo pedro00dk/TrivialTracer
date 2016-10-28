@@ -1,4 +1,4 @@
-package tracer.data.material;
+package tracer.data.visual;
 
 import tracer.util.Copyable;
 import tracer.util.TTMath;

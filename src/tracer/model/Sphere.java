@@ -1,9 +1,9 @@
 package tracer.model;
 
-import tracer.data.Vector3;
-import tracer.data.material.Material;
+import tracer.data.base.Vector3;
 import tracer.data.trace.Hit;
 import tracer.data.trace.Ray;
+import tracer.model.material.Material;
 
 import java.util.Objects;
 import java.util.Random;
@@ -26,7 +26,7 @@ public class Sphere implements Model {
     private float radius;
 
     /**
-     * The material of this sphere.
+     * The visual of this sphere.
      */
     private Material material;
 
@@ -41,19 +41,19 @@ public class Sphere implements Model {
     private static final float DEFAULT_RADIUS = 1;
 
     /**
-     * The default material of the sphere.
+     * The default visual of the sphere.
      */
     private static final Material DEFAULT_MATERIAL = new Material();
 
     /**
-     * Create the sphere in origin (0, 0, 0) with radius 1 and default material.
+     * Create the sphere in origin (0, 0, 0) with radius 1 and default visual.
      */
     public Sphere() {
         this(DEFAULT_CENTER, DEFAULT_RADIUS, DEFAULT_MATERIAL);
     }
 
     /**
-     * Create the sphere with the received center position and radius 1 and default material.
+     * Create the sphere with the received center position and radius 1 and default visual.
      *
      * @param center the sphere center position
      */
@@ -63,7 +63,7 @@ public class Sphere implements Model {
 
     /**
      * Create the sphere with the center in the origin (0, 0, 0) and the received radius, should be greater than 0
-     * and default material (new Material()).
+     * and default visual (new Material()).
      *
      * @param radius the sphere radius
      */
@@ -72,7 +72,7 @@ public class Sphere implements Model {
     }
 
     /**
-     * Create the sphere with the received center position and radius, should be greater than 0, and default material.
+     * Create the sphere with the received center position and radius, should be greater than 0, and default visual.
      *
      * @param center the sphere center position
      * @param radius the sphere radius
@@ -83,11 +83,11 @@ public class Sphere implements Model {
 
     /**
      * Create the sphere with the received center position and radius, should be greater than 0  and the received
-     * material (cannot be null).
+     * visual (cannot be null).
      *
      * @param center   the sphere center position
      * @param radius   the sphere radius
-     * @param material the sphere material
+     * @param material the sphere visual
      */
     public Sphere(Vector3 center, float radius, Material material) {
         this.center = Objects.requireNonNull(center, "The center can not be null.");

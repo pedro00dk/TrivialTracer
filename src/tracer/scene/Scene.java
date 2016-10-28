@@ -1,6 +1,6 @@
 package tracer.scene;
 
-import tracer.data.material.Color;
+import tracer.data.visual.Color;
 import tracer.model.Model;
 import tracer.util.Copyable;
 

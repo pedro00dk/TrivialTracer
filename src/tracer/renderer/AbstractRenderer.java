@@ -1,8 +1,8 @@
 package tracer.renderer;
 
-import tracer.data.Matrix4;
-import tracer.data.Vector3;
-import tracer.data.material.Color;
+import tracer.data.base.Matrix4;
+import tracer.data.base.Vector3;
+import tracer.data.visual.Color;
 import tracer.data.trace.Hit;
 import tracer.data.trace.Ray;
 import tracer.model.Model;
