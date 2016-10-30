@@ -92,40 +92,43 @@ public class Triangle extends AbstractModel {
         return surfacePoints;
     }
 
+    /**
+     * The constant used to ignore intersections when the inclination between the ray direction and the triangle normal
+     * is next to 90 degrees.
+     */
+    private static final float K_EPSILON = 1e-4f;
+
     @Override
     public Hit intersect(Ray ray) {
         Vector3 planeNormal = Vector3.cross(Vector3.sub(vertex2, vertex0), Vector3.sub(vertex1, vertex0)).normalize();
         float planeDistance = planeNormal.dot(vertex0);
         float denominator = planeNormal.dot(ray.direction);
-        if (denominator < 0.0001f && denominator > -0.0001f) {
+        if (denominator < K_EPSILON && denominator > -K_EPSILON) {
             return null;
         }
         float rayDistance = -(planeNormal.dot(ray.origin) - planeDistance) / denominator;
-        if (rayDistance < 0.0001f) {
+        if (rayDistance < 0) {
             return null;
         }
         Vector3 point = Vector3.orientate(ray.origin, ray.direction, rayDistance);
-        // Inside outside test
-        // edge 0
+        //
         Vector3 edge0 = Vector3.sub(vertex1, vertex0);
         Vector3 vp0 = Vector3.sub(point, vertex0);
         Vector3 c0 = Vector3.cross(vp0, edge0);
         if (planeNormal.dot(c0) < 0) {
             return null;
         }
-        // edge 1
         Vector3 edge1 = Vector3.sub(vertex2, vertex1);
         Vector3 vp1 = Vector3.sub(point, vertex1);
         Vector3 c1 = Vector3.cross(vp1, edge1);
         if (planeNormal.dot(c1) < 0) {
-            return null; // P is on the right side
+            return null;
         }
-        // edge 2
         Vector3 edge2 = Vector3.sub(vertex0, vertex2);
         Vector3 vp2 = Vector3.sub(point, vertex2);
         Vector3 c2 = Vector3.cross(vp2, edge2);
         if (planeNormal.dot(c2) < 0) {
-            return null; // P is on the right side;
+            return null;
         }
         return new Hit(this, ray, rayDistance, point, planeNormal, material.getSurfaceColor());
     }

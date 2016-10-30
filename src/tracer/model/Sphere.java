@@ -117,11 +117,6 @@ public class Sphere extends AbstractModel {
     }
 
     @Override
-    public Material getMaterial() {
-        return material;
-    }
-
-    @Override
     public Hit intersect(Ray ray) {
         Vector3 l = Vector3.sub(center, ray.origin);
         float tca = l.dot(ray.direction);
@@ -132,9 +127,9 @@ public class Sphere extends AbstractModel {
         float thc = (float) Math.sqrt(radius2 - d2);
         float t0 = tca - thc;
         float t1 = tca + thc;
-        float minT = 0;
-        Vector3 hitPoint = null;
-        Vector3 hitNormal = null;
+        float minT;
+        Vector3 hitPoint;
+        Vector3 hitNormal;
         if (t0 < t1) {
             if (t0 >= 0) {
                 minT = t0;
