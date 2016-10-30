@@ -176,7 +176,6 @@ public abstract class AbstractRenderer implements Renderer {
                 frameUpdate.accept(this);
             }
             renderFrame();
-            System.out.println(getFrameRate());
             //
             long finishFrameTime = System.currentTimeMillis();
             float deltaFrameTime = (finishFrameTime - startFrameTime) / 1000.0f;
