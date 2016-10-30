@@ -2,11 +2,11 @@ package tracer.renderer;
 
 import tracer.data.base.Matrix4;
 import tracer.data.base.Vector3;
-import tracer.data.visual.Color;
-import tracer.model.material.Material;
 import tracer.data.trace.Hit;
 import tracer.data.trace.Ray;
+import tracer.data.visual.Color;
 import tracer.model.Model;
+import tracer.model.material.Material;
 import tracer.scene.Camera;
 import tracer.scene.Display;
 import tracer.scene.Scene;
@@ -36,9 +36,9 @@ public class PTRenderer extends AbstractRenderer {
     }
 
     // Path tracing internal properties
-    private static final int PIXEL_SAMPLES = 100;
-    private static final int LIGHT_SAMPLES = 4;
-    private static final int MAX_RAY_DEPTH = 5;
+    private static final int PIXEL_SAMPLES = 40;
+    private static final int LIGHT_SAMPLES = 30;
+    private static final int MAX_RAY_DEPTH = 8;
     //
     private static final float ORIGIN_BIAS = 1e-4f;
     //
@@ -104,6 +104,12 @@ public class PTRenderer extends AbstractRenderer {
 
         // If an intersection happens
         Material modelMaterial = hit.model.getMaterial(); // The hit model visual
+        float kMax = modelMaterial.getPropagation() + modelMaterial.getReflection() + modelMaterial.getRefraction();
+        Color emissionContribution = Color.black();
+        Color directLightContribution = Color.black();
+        Color propagationContribution = Color.black();
+        Color reflectionContribution = Color.black();
+        Color refractionContribution = Color.black();
 
         // Check if is inside the model
         boolean insideModel = false;
@@ -112,65 +118,59 @@ public class PTRenderer extends AbstractRenderer {
             insideModel = true;
         }
 
-        // Emission light check
-        Color emissionContribution = null;
+        // Emission light check (always happens if is emissive)
         if (modelMaterial.isEmissive()) {
             emissionContribution = modelMaterial.getEmissiveColor();
         }
 
-        // Direct light check
-        Color directLightContribution = Color.black();
-        for (Model light : scene.getLights()) {
-            if (!hit.model.equals(light) && light.getMaterial().isEmissive()) {
-                for (Vector3 lightPoint : light.getSurfacePoints(LIGHT_SAMPLES)) {
-                    Vector3 shadowRayDirection = Vector3.sub(lightPoint, hit.point).normalize();
-                    Vector3 shadowRayOrigin = Vector3.orientate(hit.point, shadowRayDirection, ORIGIN_BIAS);
-                    Hit shadowHit = castRay(new Ray(shadowRayOrigin, shadowRayDirection));
-                    if (shadowHit != null && shadowHit.model.equals(light)) {
-                        float emissionRate = shadowRayDirection.dot(hit.normal) / LIGHT_SAMPLES;
-                        directLightContribution.sum(
-                                Color.mul(
-                                        modelMaterial.getSurfaceColor(),
-                                        light.getMaterial().getEmissiveColor()
-                                ).scale(emissionRate)
-                        );
+        // Direct light check (always happens if has lights in the scene)
+        if (modelMaterial.getPropagation() > 0) {
+            for (Model light : scene.getLights()) {
+                if (!hit.model.equals(light) && light.getMaterial().isEmissive()) {
+                    for (Vector3 lightPoint : light.getSurfacePoints(LIGHT_SAMPLES)) {
+                        Vector3 shadowRayDirection = Vector3.sub(lightPoint, hit.point).normalize();
+                        Vector3 shadowRayOrigin = Vector3.orientate(hit.point, hit.normal, ORIGIN_BIAS);
+                        Hit shadowHit = castRay(new Ray(shadowRayOrigin, shadowRayDirection));
+                        if (shadowHit != null && shadowHit.model.equals(light)) {
+                            float emissionRate = shadowRayDirection.dot(hit.normal);
+                            directLightContribution.sum(Color.mul(
+                                    modelMaterial.getSurfaceColor(),
+                                    light.getMaterial().getEmissiveColor()
+                                    ).scale(emissionRate / LIGHT_SAMPLES)
+                            );
+                        }
                     }
                 }
             }
+            directLightContribution.scale(modelMaterial.getPropagation() / kMax);
         }
-        directLightContribution.scale(modelMaterial.getPropagation() / (modelMaterial.getPropagation() + modelMaterial.getRefraction()));
 
-        // Indirect light check
-        Color propagationContribution = Color.black();
-        Color reflectionContribution = Color.black();
-        Color refractionContribution = Color.black();
-        float kMax = modelMaterial.getPropagation() + modelMaterial.getReflection() + modelMaterial.getRefraction();
-        float randomK = prng.nextFloat() * kMax;
+        // Random ray path
+        float rayType = prng.nextFloat() * kMax;
 
-        if (randomK < modelMaterial.getPropagation()) {
-            // Diffuse ray
+        if (modelMaterial.getPropagation() > 0 && rayType < modelMaterial.getPropagation()) {
+            // Propagation contribution
             Vector3 propagationRayDirection = calculateRandomDirectionInOrientedHemisphere(hit.normal, prng);
-            Vector3 propagationRayOrigin = Vector3.orientate(hit.point, propagationRayDirection, ORIGIN_BIAS);
-            propagationContribution
-                    = traceRay(new Ray(propagationRayOrigin, propagationRayDirection), rayDepth + 1, prng)
-                    .mul(modelMaterial.getSurfaceColor());
-            //
-        } else if (randomK < modelMaterial.getPropagation() + modelMaterial.getReflection()) {
-            // Specular ray
+            Vector3 propagationRayOrigin = Vector3.orientate(hit.point, hit.normal, ORIGIN_BIAS);
+            //propagationContribution = traceRay(new Ray(propagationRayOrigin, propagationRayDirection), rayDepth + 1, prng);
+            //propagationContribution.scale(modelMaterial.getPropagation() / kMax);
+        } else if (modelMaterial.getReflection() > 0
+                && rayType < modelMaterial.getPropagation() + modelMaterial.getReflection()) {
+            // Specular contribution
             Vector3 reflectionRayDirection = calculateRayReflection(ray.direction, hit.normal);
-            Vector3 reflectionRayOrigin = Vector3.orientate(hit.point, reflectionRayDirection, ORIGIN_BIAS);
+            Vector3 reflectionRayOrigin = Vector3.orientate(hit.point, hit.normal, ORIGIN_BIAS);
             reflectionContribution = traceRay(new Ray(reflectionRayOrigin, reflectionRayDirection), rayDepth + 1, prng);
-            //
-        } else {
-            // Refracted ray
-            Vector3 refractionRayDirection = calculateRayRefraction(ray.direction, hit.normal,
-                    insideModel ? 1 / modelMaterial.getRefractiveIndex() : modelMaterial.getRefractiveIndex()
-            );
-            Vector3 refractionRayOrigin = Vector3.orientate(hit.point, refractionRayDirection, ORIGIN_BIAS);
-            refractionContribution = traceRay(new Ray(refractionRayOrigin, refractionRayDirection), rayDepth + 1, prng)
-                    .scale(modelMaterial.getRefraction() / (modelMaterial.getPropagation() + modelMaterial.getRefraction()));
-            //
+            reflectionContribution.scale(modelMaterial.getReflection() / kMax);
+        } else if (modelMaterial.getRefraction() > 0) {
+            // Transmission contribution
+            Vector3 refractionRayDirection
+                    = calculateRayRefraction(ray.direction, hit.normal, insideModel ? modelMaterial.getRefractiveIndex() : 1 / modelMaterial.getRefractiveIndex());
+            Vector3 refractionRayOrigin = Vector3.orientate(hit.point, hit.normal, -ORIGIN_BIAS);
+            refractionContribution = traceRay(new Ray(refractionRayOrigin, refractionRayDirection), rayDepth + 1, prng);
+            reflectionContribution.scale(modelMaterial.getRefraction() / kMax);
         }
-        return directLightContribution.sum(refractionContribution).sum(reflectionContribution);
+
+        return Color.black().sum(emissionContribution).sum(directLightContribution).sum(propagationContribution)
+                .sum(reflectionContribution).sum(refractionContribution);
     }
 }
