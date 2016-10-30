@@ -1,10 +1,7 @@
-package tracer;
-
+import loader.SDLLoader;
 import tracer.data.base.Matrix4;
 import tracer.data.base.Vector3;
-import tracer.data.visual.Color;
-import tracer.model.Sphere;
-import tracer.model.material.Material;
+import tracer.renderer.PTRenderer;
 import tracer.renderer.RTRenderer;
 import tracer.renderer.Renderer;
 import tracer.scene.Camera;
@@ -13,21 +10,23 @@ import tracer.scene.Scene;
 import tracer.scene.display.JDisplay;
 
 import javax.swing.*;
+import java.io.IOException;
 
 /**
  * @author Pedro Henrique
  */
 public class Main {
 
-    public static void main(String[] args) {
-        Scene scene = new Scene(Color.black());
-        Camera camera = new Camera(Matrix4.rotationY(55f).transformAsDirection(new Vector3(0, 0, 20)),
-                Vector3.zero(), Vector3.up(), (float) Math.toRadians(60)
+    public static void main(String[] args) throws IOException {
+        Scene scene = SDLLoader.load("model\\cornellroom.sdl");
+        Camera camera = new Camera(new Vector3(0, 0, 1f),
+                Vector3.zero(), Vector3.up(), (float) Math.toRadians(40)
         );
         Display display = new JDisplay(600, 600);
 
         //
 
+        /*
         Material lightMaterial = new Material(Color.white());
         Material lightMaterial2 = new Material(Color.white().scale(0.8f));
         Material opaqueMaterial1 = new Material(Color.lightGray(), 1, 0, 0, 0);
@@ -60,11 +59,13 @@ public class Main {
         scene.addModel(new Sphere(new Vector3(0, 0, -5), 1.3f, opaqueMaterial2));
         scene.addModel(new Sphere(new Vector3(0, 0, 5), 1.3f, opaqueMaterial2));
 
+        */
+
         JFrame frame = new JFrame();
         frame.setSize(650, 650);
         frame.add((JDisplay) display);
 
-        Renderer renderer = new RTRenderer(scene, camera, display, Main::frameUpdateConsumer);
+        Renderer renderer = new PTRenderer(scene, camera, display, Main::frameUpdateConsumer);
         renderer.start();
 
         frame.setVisible(true);
@@ -74,7 +75,7 @@ public class Main {
         Vector3 cameraPosition = r.getCamera().getPosition();
         r.getCamera().setPosition(
                 Matrix4.rotationY(
-                        (float) Math.toRadians(12) * r.getFrameTime()
+                        (float) Math.toRadians(0) * r.getFrameTime()
                 ).transformAsPoint(cameraPosition)
         );
         System.out.println(r.getFrameRate());
