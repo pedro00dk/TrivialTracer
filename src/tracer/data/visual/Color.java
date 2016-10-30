@@ -266,9 +266,9 @@ public class Color implements Copyable<Color> {
      * @return this color modified
      */
     public Color interpolate(Color other, float gradient) {
-        r = r * (1 - gradient) + other.r * gradient;
-        g = g * (1 - gradient) + other.g * gradient;
-        b = b * (1 - gradient) + other.b * gradient;
+        r = TTMath.clamp01(r * (1 - gradient) + other.r * gradient);
+        g = TTMath.clamp01(g * (1 - gradient) + other.g * gradient);
+        b = TTMath.clamp01(b * (1 - gradient) + other.b * gradient);
         return this;
     }
 

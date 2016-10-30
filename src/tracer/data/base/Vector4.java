@@ -86,7 +86,7 @@ public class Vector4 implements Copyable<Vector4> {
 
     @Override
     public String toString() {
-        return "(" + x + ", " + y + ", " + z + ")";
+        return "(" + x + ", " + y + ", " + z + ", " + w + ")";
     }
 
     @Override

@@ -309,7 +309,7 @@ public class Vector3 implements Copyable<Vector3> {
 
     /**
      * Returns the cross product between this and the received vectors. The received vector is not modified, this
-     * vector received the cross product result.
+     * vector received the cross product result. This cross is left-hand oriented.
      *
      * @param other the vector to calculate the cross product with this
      * @return this vector modified
@@ -324,7 +324,7 @@ public class Vector3 implements Copyable<Vector3> {
 
     /**
      * Returns the cross product between this and the received vectors (inverted cross product). The received vector
-     * is not modified, this vector received the cross product result.
+     * is not modified, this vector received the cross product result. This cross is right-hand oriented.
      *
      * @param other the vector to calculate the cross product with this
      * @return this vector modified
