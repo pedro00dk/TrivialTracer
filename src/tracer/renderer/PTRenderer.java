@@ -152,8 +152,8 @@ public class PTRenderer extends AbstractRenderer {
             // Propagation contribution
             Vector3 propagationRayDirection = calculateRandomDirectionInOrientedHemisphere(hit.normal, prng);
             Vector3 propagationRayOrigin = Vector3.orientate(hit.point, hit.normal, ORIGIN_BIAS);
-            //propagationContribution = traceRay(new Ray(propagationRayOrigin, propagationRayDirection), rayDepth + 1, prng);
-            //propagationContribution.scale(modelMaterial.getPropagation() / kMax);
+            propagationContribution = traceRay(new Ray(propagationRayOrigin, propagationRayDirection), rayDepth + 1, prng);
+            propagationContribution.scale(modelMaterial.getPropagation() / kMax);
         } else if (modelMaterial.getReflection() > 0
                 && rayType < modelMaterial.getPropagation() + modelMaterial.getReflection()) {
             // Specular contribution
