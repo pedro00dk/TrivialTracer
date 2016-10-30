@@ -1,11 +1,11 @@
 package tracer.renderer;
 
 import tracer.data.base.Vector3;
-import tracer.data.visual.Color;
-import tracer.model.material.Material;
 import tracer.data.trace.Hit;
 import tracer.data.trace.Ray;
+import tracer.data.visual.Color;
 import tracer.model.Model;
+import tracer.model.material.Material;
 import tracer.scene.Camera;
 import tracer.scene.Display;
 import tracer.scene.Scene;
@@ -89,7 +89,7 @@ public class RTRenderer extends AbstractRenderer {
             for (Model light : scene.getLights()) {
                 if (!hit.model.equals(light) && light.getMaterial().isEmissive()) {
                     Vector3 shadowRayDirection = Vector3.sub(light.getCenter(), hit.point).normalize();
-                    Vector3 shadowRayOrigin = Vector3.orientate(hit.point, shadowRayDirection, ORIGIN_BIAS);
+                    Vector3 shadowRayOrigin = Vector3.orientate(hit.point, hit.normal, ORIGIN_BIAS);
                     Hit shadowHit = castRay(new Ray(shadowRayOrigin, shadowRayDirection));
                     if (shadowHit != null && shadowHit.model.equals(light)) {
                         float emissionRate = shadowRayDirection.dot(hit.normal);
@@ -108,7 +108,7 @@ public class RTRenderer extends AbstractRenderer {
         Color reflectionContribution = Color.black();
         if (modelMaterial.getReflection() > 0) {
             Vector3 reflectionRayDirection = calculateRayReflection(ray.direction, hit.normal);
-            Vector3 reflectionRayOrigin = Vector3.orientate(hit.point, reflectionRayDirection, ORIGIN_BIAS);
+            Vector3 reflectionRayOrigin = Vector3.orientate(hit.point, hit.normal, ORIGIN_BIAS);
             reflectionContribution = traceRay(new Ray(reflectionRayOrigin, reflectionRayDirection), rayDepth + 1);
             reflectionContribution.scale(modelMaterial.getReflection() / kMax);
         }
@@ -118,7 +118,7 @@ public class RTRenderer extends AbstractRenderer {
         if (modelMaterial.getRefraction() > 0) {
             Vector3 refractionRayDirection
                     = calculateRayRefraction(ray.direction, hit.normal, insideModel ? modelMaterial.getRefractiveIndex() : 1 / modelMaterial.getRefractiveIndex());
-            Vector3 refractionRayOrigin = Vector3.orientate(hit.point, refractionRayDirection, ORIGIN_BIAS);
+            Vector3 refractionRayOrigin = Vector3.orientate(hit.point, hit.normal, -ORIGIN_BIAS);
             refractionContribution = traceRay(new Ray(refractionRayOrigin, refractionRayDirection), rayDepth + 1);
             reflectionContribution.scale(modelMaterial.getRefraction() / kMax);
         }
