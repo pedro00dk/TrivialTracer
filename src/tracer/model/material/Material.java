@@ -15,77 +15,77 @@ import java.util.Objects;
 public class Material implements Copyable<Material> {
 
     /**
-     * The color of the visual surface.
+     * The color of the material surface.
      */
     private Color surfaceColor;
 
     /**
-     * The color that the visual emits.
+     * The color that the material emits.
      */
     private Color emissiveColor;
 
     /**
-     * Indicates if the visual is emissive.
+     * Indicates if the material is emissive.
      */
     private boolean emissive;
 
     /**
-     * The visual light propagation, should be between 0 (absorbs all light) and 1 (reflects the self color).
+     * The material light propagation, should be between 0 (absorbs all light) and 1 (reflects the self color).
      */
     private float propagation; // Kd -> diffuse coefficient
 
     /**
-     * The visual reflection, should be between 0 (completely diffuse) and 1 (specular).
+     * The material reflection, should be between 0 (completely diffuse) and 1 (specular).
      */
     private float reflection; // Ks -> specular coefficient
 
     /**
-     * The visual refraction, should be between 0 (opaque) and 1 (transparent).
+     * The material refraction, should be between 0 (opaque) and 1 (transparent).
      */
     private float refraction; // Kt -> transparency coefficient
 
     /**
-     * The refractive index of the visual, ignored if the refraction is 0.
+     * The refractive index of the material, ignored if the refraction is 0.
      */
     private float refractiveIndex;
 
     /**
-     * The default surface color of the visual.
+     * The default surface color of the material.
      */
     private static final Color DEFAULT_SURFACE_COLOR = Color.lightGray();
 
     /**
-     * The default emissive color of the visual.
+     * The default emissive color of the material.
      */
     private static final Color DEFAULT_EMISSIVE_COLOR = Color.black();
 
     /**
-     * The default emissive info of the visual.
+     * The default emissive info of the material.
      */
     private static final boolean DEFAULT_EMISSIVE = false;
 
     /**
-     * The default propagation of the visual.
+     * The default propagation of the material.
      */
     private static final float DEFAULT_PROPAGATION = 1;
 
     /**
-     * The default reflection of the visual.
+     * The default reflection of the material.
      */
     private static final float DEFAULT_REFLECTION = 0.15f;
 
     /**
-     * The default refraction of the visual.
+     * The default refraction of the material.
      */
     private static final float DEFAULT_REFRACTION = 0;
 
     /**
-     * The default refractive index of the visual.
+     * The default refractive index of the material.
      */
     private static final float DEFAULT_REFRACTIVE_INDEX = 1;
 
     /**
-     * Create the visual with the default fields, the surface light gray, emits nothing, perfectly diffuse, reflects
+     * Create the material with the default fields, the surface light gray, emits nothing, perfectly diffuse, reflects
      * 0.15 of the light and is opaque (refraction equals 0).
      */
     public Material() {
@@ -94,19 +94,19 @@ public class Material implements Copyable<Material> {
     }
 
     /**
-     * Creates the visual with the received surface color and not emissive, and the received properties
+     * Creates the material with the received surface color and not emissive, and the received properties
      *
-     * @param surfaceColor the visual surface color
-     * @param propagation  the propagation of the visual (should be between than 0 and 1)
-     * @param reflection   the reflection of the visual (should be between than 0 and 1)
-     * @param refraction   the refraction of the visual (should be between than 0 and 1)
+     * @param surfaceColor the material surface color
+     * @param propagation  the propagation of the material (should be between than 0 and 1)
+     * @param reflection   the reflection of the material (should be between than 0 and 1)
+     * @param refraction   the refraction of the material (should be between than 0 and 1)
      */
     public Material(Color surfaceColor, float propagation, float reflection, float refraction, float refractiveIndex) {
         this(surfaceColor, DEFAULT_EMISSIVE_COLOR.copy(), false, propagation, reflection, refraction, refractiveIndex);
     }
 
     /**
-     * Creates a emissive visual, with the received emission color and default visual properties.
+     * Creates a emissive material, with the received emission color and default material properties.
      *
      * @param emissiveColor the emissive color
      */
@@ -115,15 +115,15 @@ public class Material implements Copyable<Material> {
     }
 
     /**
-     * Creates the visual with the received values, the numeric values are clamped if out of the valid interval.
+     * Creates the material with the received values, the numeric values are clamped if out of the valid interval.
      *
-     * @param surfaceColor    the visual surface color
-     * @param emissiveColor   the color that this visual emits
-     * @param emissive        if the visual is emissive
-     * @param propagation     the propagation of the visual (should be between than 0 and 1)
-     * @param reflection      the reflection of the visual (should be between than 0 and 1)
-     * @param refraction      the refraction of the visual (should be between than 0 and 1)
-     * @param refractiveIndex the refractive index of the visual (should be between 1 and 10)
+     * @param surfaceColor    the material surface color
+     * @param emissiveColor   the color that this material emits
+     * @param emissive        if the material is emissive
+     * @param propagation     the propagation of the material (should be between than 0 and 1)
+     * @param reflection      the reflection of the material (should be between than 0 and 1)
+     * @param refraction      the refraction of the material (should be between than 0 and 1)
+     * @param refractiveIndex the refractive index of the material (should be between 1 and 10)
      */
     public Material(Color surfaceColor, Color emissiveColor, boolean emissive, float propagation, float reflection,
                     float refraction, float refractiveIndex) {
@@ -161,43 +161,43 @@ public class Material implements Copyable<Material> {
     }
 
     /**
-     * Returns if this visual is emissive.
+     * Returns if this material is emissive.
      *
-     * @return if this visual is emissive
+     * @return if this material is emissive
      */
     public boolean isEmissive() {
         return emissive;
     }
 
     /**
-     * Returns the propagation of this visual.
+     * Returns the propagation of this material.
      *
-     * @return the propagation of this visual
+     * @return the propagation of this material
      */
     public float getPropagation() {
         return propagation;
     }
 
     /**
-     * Returns the reflection of this visual.
+     * Returns the reflection of this material.
      *
-     * @return the reflection of this visual
+     * @return the reflection of this material
      */
     public float getReflection() {
         return reflection;
     }
 
     /**
-     * Returns the refraction of this visual.
+     * Returns the refraction of this material.
      *
-     * @return the refraction of this visual
+     * @return the refraction of this material
      */
     public float getRefraction() {
         return refraction;
     }
 
     /**
-     * Returns the refractive index of the visual.
+     * Returns the refractive index of the material.
      *
      * @return the refractive index
      */
@@ -206,10 +206,10 @@ public class Material implements Copyable<Material> {
     }
 
     /**
-     * Sets the received surface color in this visual.
+     * Sets the received surface color in this material.
      *
      * @param surfaceColor the new surface color
-     * @return this visual modified
+     * @return this material modified
      */
     public Material setSurfaceColor(Color surfaceColor) {
         this.surfaceColor = Objects.requireNonNull(surfaceColor, "The surface color can not be null.");
@@ -217,10 +217,10 @@ public class Material implements Copyable<Material> {
     }
 
     /**
-     * Sets the received emissive color in this visual.
+     * Sets the received emissive color in this material.
      *
      * @param emissiveColor the new emissive color
-     * @return this visual modified
+     * @return this material modified
      */
     public Material setEmissiveColor(Color emissiveColor) {
         this.emissiveColor = Objects.requireNonNull(emissiveColor, "The surface color can not be null.");
@@ -228,10 +228,10 @@ public class Material implements Copyable<Material> {
     }
 
     /**
-     * Sets the received emissive property in this visual.
+     * Sets the received emissive property in this material.
      *
-     * @param emissive if this visual is emissive
-     * @return this visual modified
+     * @param emissive if this material is emissive
+     * @return this material modified
      */
     public Material setEmissive(boolean emissive) {
         this.emissive = emissive;
@@ -239,10 +239,10 @@ public class Material implements Copyable<Material> {
     }
 
     /**
-     * Sets the received propagation property in this visual.
+     * Sets the received propagation property in this material.
      *
-     * @param propagation the new propagation of the visual (should be between 0 and 1)
-     * @return this visual modified
+     * @param propagation the new propagation of the material (should be between 0 and 1)
+     * @return this material modified
      */
     public Material setPropagation(float propagation) {
         this.propagation = TTMath.clamp01(propagation);
@@ -250,10 +250,10 @@ public class Material implements Copyable<Material> {
     }
 
     /**
-     * Sets the received reflection property in this visual.
+     * Sets the received reflection property in this material.
      *
-     * @param reflection the new reflection of the visual (should be between 0 and 1)
-     * @return this visual modified
+     * @param reflection the new reflection of the material (should be between 0 and 1)
+     * @return this material modified
      */
     public Material setReflection(float reflection) {
         this.reflection = TTMath.clamp01(reflection);
@@ -261,10 +261,10 @@ public class Material implements Copyable<Material> {
     }
 
     /**
-     * Sets the received refraction property in this visual.
+     * Sets the received refraction property in this material.
      *
-     * @param refraction the new refraction of the visual (should be between 0 and 1)
-     * @return this visual modified
+     * @param refraction the new refraction of the material (should be between 0 and 1)
+     * @return this material modified
      */
     public Material setRefraction(float refraction) {
         this.refraction = TTMath.clamp01(refraction);
@@ -272,10 +272,10 @@ public class Material implements Copyable<Material> {
     }
 
     /**
-     * Sets the received refractive index in this visual.
+     * Sets the received refractive index in this material.
      *
-     * @param refractiveIndex the new refractive index of the visual (should be between 1 and 10)
-     * @return this visual modified
+     * @param refractiveIndex the new refractive index of the material (should be between 1 and 10)
+     * @return this material modified
      */
     public Material setRefractiveIndex(float refractiveIndex) {
         this.refractiveIndex = TTMath.clamp(refractiveIndex, 1, 10);

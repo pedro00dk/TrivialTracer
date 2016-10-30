@@ -41,4 +41,10 @@ public abstract class AbstractModel implements Model {
     public Material getMaterial() {
         return material;
     }
+
+    @Override
+    public Model setMaterial(Material material) {
+        this.material = Objects.requireNonNull(material, "The model material can not be null.");
+        return this;
+    }
 }

@@ -27,14 +27,6 @@ public interface Model extends Copyable<Model> {
     boolean equals(Object other);
 
     /**
-     * Models should implement the equals method.
-     *
-     * @return the model hash code
-     */
-    @Override
-    int hashCode();
-
-    /**
      * Returns the center point of the model.
      *
      * @return the center of the model
@@ -50,11 +42,18 @@ public interface Model extends Copyable<Model> {
     Vector3[] getSurfacePoints(int count);
 
     /**
-     * Gets the visual of this model.
+     * Gets the material of this model.
      *
-     * @return the visual of this model
+     * @return the material of this model
      */
     Material getMaterial();
+
+    /**
+     * Sets the material of this model.
+     *
+     * @return the material of this model
+     */
+    Model setMaterial(Material material);
 
     /**
      * Returns if a ray intersects this model.
