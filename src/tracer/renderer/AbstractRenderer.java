@@ -2,9 +2,9 @@ package tracer.renderer;
 
 import tracer.data.base.Matrix4;
 import tracer.data.base.Vector3;
-import tracer.data.visual.Color;
 import tracer.data.trace.Hit;
 import tracer.data.trace.Ray;
+import tracer.data.visual.Color;
 import tracer.model.Model;
 import tracer.scene.Camera;
 import tracer.scene.Display;
@@ -42,6 +42,46 @@ public abstract class AbstractRenderer implements Renderer {
      * Function that runs before each frame rendering.
      */
     private Consumer<Renderer> frameUpdate;
+
+    /**
+     * Creates an abstract renderer with default scene, camera and a useless display.
+     */
+    public AbstractRenderer() {
+        scene = new Scene();
+        camera = new Camera();
+        display = new Display() {
+            @Override
+            public int getDisplayWidth() {
+                return 0;
+            }
+
+            @Override
+            public int getDisplayHeight() {
+                return 0;
+            }
+
+            @Override
+            public void setDisplayWidth(int width) {
+            }
+
+            @Override
+            public void setDisplayHeight(int height) {
+            }
+
+            @Override
+            public void setDisplaySize(int width, int height) {
+            }
+
+            @Override
+            public int[] getFrontBuffer() {
+                return new int[0];
+            }
+
+            @Override
+            public void flush() {
+            }
+        };
+    }
 
     /**
      * Creates the renderer with the received scene, camera and display.

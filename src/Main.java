@@ -1,6 +1,7 @@
 import loader.SDLLoader;
 import tracer.data.base.Matrix4;
 import tracer.data.base.Vector3;
+import tracer.renderer.MTRenderer;
 import tracer.renderer.PTRenderer;
 import tracer.renderer.RTRenderer;
 import tracer.renderer.Renderer;
@@ -20,9 +21,9 @@ public class Main {
     public static void main(String[] args) throws IOException {
         Scene scene = SDLLoader.load("model\\cornellroom.sdl");
         Camera camera = new Camera(new Vector3(0, 0, 1f),
-                Vector3.zero(), Vector3.up(), (float) Math.toRadians(40)
+                Vector3.zero(), Vector3.up(), (float) Math.toRadians(25)
         );
-        Display display = new JDisplay(600, 600);
+        Display display = new JDisplay(650, 650);
 
         //
 
@@ -62,10 +63,10 @@ public class Main {
         */
 
         JFrame frame = new JFrame();
-        frame.setSize(650, 650);
+        frame.setSize(700, 700);
         frame.add((JDisplay) display);
 
-        Renderer renderer = new PTRenderer(scene, camera, display, Main::frameUpdateConsumer);
+        Renderer renderer = new MTRenderer(new PTRenderer(scene, camera, display, Main::frameUpdateConsumer), 8);
         renderer.start();
 
         frame.setVisible(true);

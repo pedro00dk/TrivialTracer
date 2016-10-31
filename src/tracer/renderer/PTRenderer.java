@@ -36,9 +36,9 @@ public class PTRenderer extends AbstractRenderer {
     }
 
     // Path tracing internal properties
-    private static final int PIXEL_SAMPLES = 40;
-    private static final int LIGHT_SAMPLES = 30;
-    private static final int MAX_RAY_DEPTH = 8;
+    private static final int PIXEL_SAMPLES = 200;
+    private static final int LIGHT_SAMPLES = 10;
+    private static final int MAX_RAY_DEPTH = 5;
     //
     private static final float ORIGIN_BIAS = 1e-4f;
     //
