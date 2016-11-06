@@ -1,5 +1,8 @@
 package tracer.util;
 
+import tracer.data.base.Vector3;
+import tracer.data.visual.Color;
+
 /**
  * Class to hold some methods not contained in the {@link Math} class.
  *
@@ -48,5 +51,25 @@ public final class TTMath {
      */
     public static float clamp01(float v) {
         return v < 0 ? 0 : v > 1 ? 1 : v;
+    }
+
+    /**
+     * Transforms a vector in a color.
+     *
+     * @param vector the vector to transform
+     * @return the resultant color
+     */
+    public static Color vectorToColor(Vector3 vector) {
+        return new Color(vector.x, vector.y, vector.z);
+    }
+
+    /**
+     * Transforms a color in a vector.
+     *
+     * @param color the color to transform
+     * @return the resultant vector
+     */
+    public static Vector3 colorToVector(Color color) {
+        return new Vector3(color.getR(), color.getG(), color.getB());
     }
 }
