@@ -7,8 +7,7 @@ import tracer.data.visual.Material;
 import tracer.util.Copyable;
 
 /**
- * The interface for any model type, specifies methods to check intersections with rays and get some properties. Models
- * should implement the {@link #equals(Object)} and {@link #hashCode()} methods.
+ * The interface for any model type, specifies methods to check intersections with rays and get some properties.
  *
  * @author Pedro Henrique
  * @see Ray
@@ -18,8 +17,7 @@ import tracer.util.Copyable;
 public interface Model extends Copyable<Model> {
 
     /**
-     * Returns aleatory surface points with uniform probability of the model, if the count number is 1 the center point
-     * of the model is returned.
+     * Returns aleatory surface points with uniform probability of the model.
      *
      * @param count the number of points to get (can not be less than 1)
      * @return points of the surface

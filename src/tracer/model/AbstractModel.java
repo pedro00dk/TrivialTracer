@@ -16,16 +16,14 @@ public abstract class AbstractModel implements Model {
      */
     protected Material material;
 
-    /**
-     * The default material os the model.
-     */
+    // The default attribute of the abstract models
     protected static final Material DEFAULT_MATERIAL = new Material();
 
     /**
      * Creates the model with the default material.
      */
     public AbstractModel() {
-        this(DEFAULT_MATERIAL.copy());
+        this(DEFAULT_MATERIAL);
     }
 
     /**
@@ -34,7 +32,7 @@ public abstract class AbstractModel implements Model {
      * @param material the model material
      */
     public AbstractModel(Material material) {
-        this.material = Objects.requireNonNull(material, "The model material can not be null.");
+        this.material = Objects.requireNonNull(material, "The model material can not be null.").copy();
     }
 
     @Override

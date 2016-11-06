@@ -25,21 +25,15 @@ public class Sphere extends AbstractModel {
      */
     private float radius;
 
-    /**
-     * The default center of the sphere.
-     */
+    // The default attributes of the spheres
     private static final Vector3 DEFAULT_CENTER = Vector3.zero();
-
-    /**
-     * The default radius of the sphere.
-     */
     private static final float DEFAULT_RADIUS = 1;
 
     /**
      * Create the sphere in origin (0, 0, 0) with radius 1 and default material.
      */
     public Sphere() {
-        this(DEFAULT_CENTER.copy(), DEFAULT_RADIUS);
+        this(DEFAULT_CENTER, DEFAULT_RADIUS);
     }
 
     /**
@@ -68,7 +62,7 @@ public class Sphere extends AbstractModel {
      * @param radius the sphere radius
      */
     public Sphere(Vector3 center, float radius) {
-        this(center, radius, DEFAULT_MATERIAL.copy());
+        this(center, radius, DEFAULT_MATERIAL);
     }
 
     /**
@@ -81,7 +75,7 @@ public class Sphere extends AbstractModel {
      */
     public Sphere(Vector3 center, float radius, Material material) {
         super(material);
-        this.center = Objects.requireNonNull(center, "The center can not be null.");
+        this.center = Objects.requireNonNull(center, "The center can not be null.").copy();
         if (radius <= 0) {
             throw new IllegalArgumentException("The radius should be greater than 0.");
         }
@@ -90,11 +84,14 @@ public class Sphere extends AbstractModel {
 
     @Override
     public Model copy() {
-        return new Sphere(center.copy(), radius, material.copy());
+        return new Sphere(center, radius, material);
     }
 
     @Override
     public Vector3[] getSurfacePoints(int count) {
+        if (count < 1) {
+            throw new IllegalArgumentException("The count should be greater than 0.");
+        }
         Vector3[] surfacePoints = new Vector3[count];
         for (int i = 0; i < count; i++) {
             surfacePoints[i] = TTRand.onPolarSphere().scale(radius).sum(center);
