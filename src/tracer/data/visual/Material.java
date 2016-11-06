@@ -100,8 +100,8 @@ public class Material implements Copyable<Material> {
      */
     public Material(Color surfaceColor, Color emissiveColor, boolean emissive, float propagation, float reflection,
                     float refraction, float refractiveIndex) {
-        this.surfaceColor = Objects.requireNonNull(surfaceColor, "The surface color can not be null.");
-        this.emissiveColor = Objects.requireNonNull(emissiveColor, "The emissive color ca not be null.");
+        this.surfaceColor = Objects.requireNonNull(surfaceColor, "The surface color can not be null.").copy();
+        this.emissiveColor = Objects.requireNonNull(emissiveColor, "The emissive color ca not be null.").copy();
         this.emissive = emissive;
         this.propagation = TTMath.clamp01(propagation);
         this.reflection = TTMath.clamp01(reflection);
