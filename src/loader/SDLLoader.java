@@ -3,7 +3,7 @@ package loader;
 import tracer.data.base.Vector3;
 import tracer.data.visual.Color;
 import tracer.model.Model;
-import tracer.model.material.Material;
+import tracer.data.visual.Material;
 import tracer.scene.Scene;
 
 import java.io.BufferedReader;

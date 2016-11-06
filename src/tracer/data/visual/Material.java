@@ -1,6 +1,5 @@
-package tracer.model.material;
+package tracer.data.visual;
 
-import tracer.data.visual.Color;
 import tracer.util.Copyable;
 import tracer.util.TTMath;
 
@@ -49,39 +48,13 @@ public class Material implements Copyable<Material> {
      */
     private float refractiveIndex;
 
-    /**
-     * The default surface color of the material.
-     */
+    // The default attributes of the materials
     private static final Color DEFAULT_SURFACE_COLOR = Color.lightGray();
-
-    /**
-     * The default emissive color of the material.
-     */
     private static final Color DEFAULT_EMISSIVE_COLOR = Color.black();
-
-    /**
-     * The default emissive info of the material.
-     */
     private static final boolean DEFAULT_EMISSIVE = false;
-
-    /**
-     * The default propagation of the material.
-     */
     private static final float DEFAULT_PROPAGATION = 1;
-
-    /**
-     * The default reflection of the material.
-     */
     private static final float DEFAULT_REFLECTION = 0.15f;
-
-    /**
-     * The default refraction of the material.
-     */
     private static final float DEFAULT_REFRACTION = 0;
-
-    /**
-     * The default refractive index of the material.
-     */
     private static final float DEFAULT_REFRACTIVE_INDEX = 1;
 
     /**

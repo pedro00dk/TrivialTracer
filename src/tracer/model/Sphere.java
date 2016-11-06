@@ -3,10 +3,10 @@ package tracer.model;
 import tracer.data.base.Vector3;
 import tracer.data.trace.Hit;
 import tracer.data.trace.Ray;
-import tracer.model.material.Material;
+import tracer.data.visual.Material;
+import tracer.util.TTRand;
 
 import java.util.Objects;
-import java.util.Random;
 
 /**
  * Simple sphere {@link Model} implementation, contains the sphere center position and the radius.
@@ -100,18 +100,9 @@ public class Sphere extends AbstractModel {
 
     @Override
     public Vector3[] getSurfacePoints(int count) {
-        if (count < 1) {
-            throw new IllegalArgumentException("The count should be greater than 0.");
-        }
-        Random prng = new Random();
         Vector3[] surfacePoints = new Vector3[count];
         for (int i = 0; i < count; i++) {
-            float longitude = 2 * (float) Math.PI * prng.nextFloat();
-            float latitude = (float) Math.acos(2 * prng.nextFloat() - 1);
-            surfacePoints[i] = new Vector3(
-                    (float) (radius * Math.sin(latitude) * Math.cos(longitude)),
-                    (float) (radius * Math.sin(latitude) * Math.sin(longitude)),
-                    (float) (radius * Math.cos(latitude))).sum(center);
+            surfacePoints[i] = TTRand.onPolarSphere().scale(radius).sum(center);
         }
         return surfacePoints;
     }

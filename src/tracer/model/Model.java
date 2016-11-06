@@ -3,7 +3,7 @@ package tracer.model;
 import tracer.data.base.Vector3;
 import tracer.data.trace.Hit;
 import tracer.data.trace.Ray;
-import tracer.model.material.Material;
+import tracer.data.visual.Material;
 import tracer.util.Copyable;
 
 /**

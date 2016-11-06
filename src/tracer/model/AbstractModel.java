@@ -1,6 +1,6 @@
 package tracer.model;
 
-import tracer.model.material.Material;
+import tracer.data.visual.Material;
 
 import java.util.Objects;
 

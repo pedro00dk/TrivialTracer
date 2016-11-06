@@ -5,7 +5,7 @@ import tracer.data.trace.Hit;
 import tracer.data.trace.Ray;
 import tracer.data.visual.Color;
 import tracer.model.Model;
-import tracer.model.material.Material;
+import tracer.data.visual.Material;
 import tracer.scene.Camera;
 import tracer.scene.Display;
 import tracer.scene.Scene;

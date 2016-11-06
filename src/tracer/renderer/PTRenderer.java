@@ -6,12 +6,12 @@ import tracer.data.trace.Hit;
 import tracer.data.trace.Ray;
 import tracer.data.visual.Color;
 import tracer.model.Model;
-import tracer.model.material.Material;
+import tracer.data.visual.Material;
 import tracer.scene.Camera;
 import tracer.scene.Display;
 import tracer.scene.Scene;
+import tracer.util.TTRand;
 
-import java.util.Random;
 import java.util.function.Consumer;
 
 /**
@@ -36,9 +36,9 @@ public class PTRenderer extends AbstractRenderer {
     }
 
     // Path tracing internal properties
-    private static final int PIXEL_SAMPLES = 200;
-    private static final int LIGHT_SAMPLES = 10;
-    private static final int MAX_RAY_DEPTH = 5;
+    private static final int PIXEL_SAMPLES = 60;
+    private static final int LIGHT_SAMPLES = 4;
+    private static final int MAX_RAY_DEPTH = 20;
     //
     private static final float ORIGIN_BIAS = 1e-4f;
     //
@@ -71,12 +71,16 @@ public class PTRenderer extends AbstractRenderer {
 
     @Override
     protected Color renderPixel(Ray ray) {
-        Random prng = new Random();
-        Color pixelColor = Color.black();
+        Vector3 color = Vector3.zero();
         for (int i = 0; i < PIXEL_SAMPLES; i++) {
-            pixelColor.sum(traceRay(ray, 0, prng).scale(1.0f / PIXEL_SAMPLES));
+            Color pixelColor = traceRay(ray, 0).scale(1.0f / PIXEL_SAMPLES);
+            color.x += pixelColor.getR();
+            color.y += pixelColor.getG();
+            color.z += pixelColor.getB();
         }
-        return pixelColor;
+        float intensity = color.x * 0.3f + color.y * 0.58f + color.z * 0.12f;
+        //color.scale(1 / (intensity + 1));
+        return new Color(color.x, color.y, color.z);
     }
 
     /**
@@ -84,10 +88,9 @@ public class PTRenderer extends AbstractRenderer {
      *
      * @param ray      the ray to trace
      * @param rayDepth the current ray depth
-     * @param prng     the prng used in indirect light calculation
      * @return the color obtained by the ray tracing
      */
-    protected Color traceRay(Ray ray, int rayDepth, Random prng) {
+    protected Color traceRay(Ray ray, int rayDepth) {
 
         // Checks the ray depth
         if (rayDepth == MAX_RAY_DEPTH) {
@@ -146,27 +149,27 @@ public class PTRenderer extends AbstractRenderer {
         }
 
         // Random ray path
-        float rayType = prng.nextFloat() * kMax;
+        float rayType = TTRand.value() * kMax;
 
         if (modelMaterial.getPropagation() > 0 && rayType < modelMaterial.getPropagation()) {
             // Propagation contribution
-            Vector3 propagationRayDirection = calculateRandomDirectionInOrientedHemisphere(hit.normal, prng);
+            Vector3 propagationRayDirection = TTRand.onUniformHemisphere(hit.normal);
             Vector3 propagationRayOrigin = Vector3.orientate(hit.point, hit.normal, ORIGIN_BIAS);
-            propagationContribution = traceRay(new Ray(propagationRayOrigin, propagationRayDirection), rayDepth + 1, prng);
+            propagationContribution = traceRay(new Ray(propagationRayOrigin, propagationRayDirection), rayDepth + 1);
             propagationContribution.scale(modelMaterial.getPropagation() / kMax);
         } else if (modelMaterial.getReflection() > 0
                 && rayType < modelMaterial.getPropagation() + modelMaterial.getReflection()) {
             // Specular contribution
             Vector3 reflectionRayDirection = calculateRayReflection(ray.direction, hit.normal);
             Vector3 reflectionRayOrigin = Vector3.orientate(hit.point, hit.normal, ORIGIN_BIAS);
-            reflectionContribution = traceRay(new Ray(reflectionRayOrigin, reflectionRayDirection), rayDepth + 1, prng);
+            reflectionContribution = traceRay(new Ray(reflectionRayOrigin, reflectionRayDirection), rayDepth + 1);
             reflectionContribution.scale(modelMaterial.getReflection() / kMax);
         } else if (modelMaterial.getRefraction() > 0) {
             // Transmission contribution
             Vector3 refractionRayDirection
                     = calculateRayRefraction(ray.direction, hit.normal, insideModel ? modelMaterial.getRefractiveIndex() : 1 / modelMaterial.getRefractiveIndex());
             Vector3 refractionRayOrigin = Vector3.orientate(hit.point, hit.normal, -ORIGIN_BIAS);
-            refractionContribution = traceRay(new Ray(refractionRayOrigin, refractionRayDirection), rayDepth + 1, prng);
+            refractionContribution = traceRay(new Ray(refractionRayOrigin, refractionRayDirection), rayDepth + 1);
             reflectionContribution.scale(modelMaterial.getRefraction() / kMax);
         }
 
