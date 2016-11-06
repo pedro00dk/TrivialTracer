@@ -88,7 +88,7 @@ public class RTRenderer extends AbstractRenderer {
         if (modelMaterial.getPropagation() > 0) {
             for (Model light : scene.getLights()) {
                 if (!hit.model.equals(light) && light.getMaterial().isEmissive()) {
-                    Vector3 shadowRayDirection = Vector3.sub(light.getCenter(), hit.point).normalize();
+                    Vector3 shadowRayDirection = Vector3.sub(light.getSurfacePoints(1)[0], hit.point).normalize();
                     Vector3 shadowRayOrigin = Vector3.orientate(hit.point, hit.normal, ORIGIN_BIAS);
                     Hit shadowHit = castRay(new Ray(shadowRayOrigin, shadowRayDirection));
                     if (shadowHit != null && shadowHit.model.equals(light)) {

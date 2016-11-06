@@ -94,11 +94,6 @@ public class Sphere extends AbstractModel {
     }
 
     @Override
-    public Vector3 getCenter() {
-        return center;
-    }
-
-    @Override
     public Vector3[] getSurfacePoints(int count) {
         Vector3[] surfacePoints = new Vector3[count];
         for (int i = 0; i < count; i++) {

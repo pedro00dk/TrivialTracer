@@ -65,10 +65,10 @@ public class Triangle extends AbstractModel {
         return new Triangle(vertex0.copy(), vertex1.copy(), vertex2.copy(), material.copy());
     }
 
-    @Override
-    public Vector3 getCenter() {
-        return Vector3.zero().sum(vertex0).sum(vertex1).sum(vertex2).scale(1f / 3f);
-    }
+
+    //public Vector3 getCenter() {
+        //return Vector3.zero().sum(vertex0).sum(vertex1).sum(vertex2).scale(1f / 3f);
+    //}
 
     @Override
     public Vector3[] getSurfacePoints(int count) {

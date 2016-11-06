@@ -18,25 +18,10 @@ import tracer.util.Copyable;
 public interface Model extends Copyable<Model> {
 
     /**
-     * Models should implement the equals method.
+     * Returns aleatory surface points with uniform probability of the model, if the count number is 1 the center point
+     * of the model is returned.
      *
-     * @param other the model to compare
-     * @return if they are equals
-     */
-    @Override
-    boolean equals(Object other);
-
-    /**
-     * Returns the center point of the model.
-     *
-     * @return the center of the model
-     */
-    Vector3 getCenter();
-
-    /**
-     * Returns aleatory surface points with uniform probability of the model.
-     *
-     * @param count the number of points to get
+     * @param count the number of points to get (can not be less than 1)
      * @return points of the surface
      */
     Vector3[] getSurfacePoints(int count);
