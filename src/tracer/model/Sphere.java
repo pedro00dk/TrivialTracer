@@ -89,9 +89,6 @@ public class Sphere extends AbstractModel {
 
     @Override
     public Vector3[] getSurfacePoints(int count) {
-        if (count < 1) {
-            throw new IllegalArgumentException("The count should be greater than 0.");
-        }
         Vector3[] surfacePoints = new Vector3[count];
         for (int i = 0; i < count; i++) {
             surfacePoints[i] = TTRand.onPolarSphere().scale(radius).sum(center);

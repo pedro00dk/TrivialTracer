@@ -17,9 +17,10 @@ import tracer.util.Copyable;
 public interface Model extends Copyable<Model> {
 
     /**
-     * Returns aleatory surface points with uniform probability of the model.
+     * Returns aleatory surface points with uniform probability of the model, if the count is less than 1, a zero sized
+     * vector array is returned.
      *
-     * @param count the number of points to get (can not be less than 1)
+     * @param count the number of points to get
      * @return points of the surface
      */
     Vector3[] getSurfacePoints(int count);
