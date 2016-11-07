@@ -584,7 +584,7 @@ public class Matrix4 implements Copyable<Matrix4> {
      */
     public static Matrix4 compose(Matrix4... ms) {
         if (ms.length == 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("The compose method should receive at least one matrix.");
         }
         Matrix4 result = ms[0].copy();
         for (int i = 1; i < ms.length; i++) {
@@ -746,8 +746,9 @@ public class Matrix4 implements Copyable<Matrix4> {
 
     /**
      * Returns the rotation between two vectors.
+     *
      * @param from the from direction vector
-     * @param to the to direction vector
+     * @param to   the to direction vector
      * @return the rotation matrix
      */
     public static Matrix4 rotationBetween(Vector3 from, Vector3 to) {
@@ -755,7 +756,7 @@ public class Matrix4 implements Copyable<Matrix4> {
             return identity();
         }
         Vector3 axis = Vector3.cross(from, to);
-        float angle = from.cos(to);
+        float angle = from.angle(to);
         return rotationAround(axis, angle);
     }
 
