@@ -4,6 +4,7 @@ import tracer.data.base.Vector3;
 import tracer.data.trace.Hit;
 import tracer.data.trace.Ray;
 import tracer.data.visual.Material;
+import tracer.model.bound.BoundBox;
 
 import java.util.Objects;
 import java.util.Random;
@@ -31,6 +32,11 @@ public class Triangle extends AbstractModel {
     private Vector3 vertex2;
 
     /**
+     * The internal bound box of this model.
+     */
+    private BoundBox boundBox;
+
+    /**
      * Creates the triangle with the received vertices (should not be null). The triangles is created with the default
      * material.
      *
@@ -39,10 +45,7 @@ public class Triangle extends AbstractModel {
      * @param vertex2 the third vertex of the triangle
      */
     public Triangle(Vector3 vertex0, Vector3 vertex1, Vector3 vertex2) {
-        super();
-        this.vertex0 = Objects.requireNonNull(vertex0, "The triangle vertices can not be null.");
-        this.vertex1 = Objects.requireNonNull(vertex1, "The triangle vertices can not be null.");
-        this.vertex2 = Objects.requireNonNull(vertex2, "The triangle vertices can not be null.");
+        this(vertex0, vertex1, vertex2, DEFAULT_MATERIAL);
     }
 
     /**
@@ -55,9 +58,27 @@ public class Triangle extends AbstractModel {
      */
     public Triangle(Vector3 vertex0, Vector3 vertex1, Vector3 vertex2, Material material) {
         super(material);
-        this.vertex0 = Objects.requireNonNull(vertex0, "The triangle vertices can not be null.");
-        this.vertex1 = Objects.requireNonNull(vertex1, "The triangle vertices can not be null.");
-        this.vertex2 = Objects.requireNonNull(vertex2, "The triangle vertices can not be null.");
+        this.vertex0 = Objects.requireNonNull(vertex0, "The triangle vertices can not be null.").copy();
+        this.vertex1 = Objects.requireNonNull(vertex1, "The triangle vertices can not be null.").copy();
+        this.vertex2 = Objects.requireNonNull(vertex2, "The triangle vertices can not be null.").copy();
+        boundBox = new BoundBox(
+                new Vector3(
+                        vertex0.x < vertex1.x ? vertex0.x < vertex2.x ? vertex0.x : vertex2.x
+                                : vertex1.x < vertex2.x ? vertex1.x : vertex2.x,
+                        vertex0.y < vertex1.y ? vertex0.y < vertex2.y ? vertex0.y : vertex2.y
+                                : vertex1.y < vertex2.y ? vertex1.y : vertex2.y,
+                        vertex0.z < vertex1.z ? vertex0.z < vertex2.z ? vertex0.z : vertex2.z
+                                : vertex1.z < vertex2.z ? vertex1.z : vertex2.z
+                ).sub(Vector3.one().scale(1e-4f)),
+                new Vector3(
+                        vertex0.x > vertex1.x ? vertex0.x > vertex2.x ? vertex0.x : vertex2.x
+                                : vertex1.x > vertex2.x ? vertex1.x : vertex2.x,
+                        vertex0.y > vertex1.y ? vertex0.y > vertex2.y ? vertex0.y : vertex2.y
+                                : vertex1.y > vertex2.y ? vertex1.y : vertex2.y,
+                        vertex0.z > vertex1.z ? vertex0.z > vertex2.z ? vertex0.z : vertex2.z
+                                : vertex1.z > vertex2.z ? vertex1.z : vertex2.z
+                ).sum(Vector3.one().scale(1e-4f))
+        );
     }
 
     @Override
@@ -92,6 +113,9 @@ public class Triangle extends AbstractModel {
 
     @Override
     public Hit intersect(Ray ray) {
+        if (!boundBox.intersect(ray)) {
+            return null;
+        }
         Vector3 planeNormal = Vector3.cross(Vector3.sub(vertex2, vertex0), Vector3.sub(vertex1, vertex0)).normalize();
         float planeDistance = planeNormal.dot(vertex0);
         float denominator = planeNormal.dot(ray.direction);

@@ -4,6 +4,7 @@ import tracer.data.base.Vector3;
 import tracer.data.trace.Hit;
 import tracer.data.trace.Ray;
 import tracer.data.visual.Material;
+import tracer.model.bound.BoundBox;
 import tracer.util.TTRand;
 
 import java.util.Objects;
@@ -24,6 +25,11 @@ public class Sphere extends AbstractModel {
      * The radius of the sphere.
      */
     private float radius;
+
+    /**
+     * The internal bound box of this model.
+     */
+    private BoundBox boundBox;
 
     // The default attributes of the spheres
     private static final Vector3 DEFAULT_CENTER = Vector3.zero();
@@ -80,6 +86,10 @@ public class Sphere extends AbstractModel {
             throw new IllegalArgumentException("The radius should be greater than 0.");
         }
         this.radius = radius;
+        boundBox = new BoundBox(
+                Vector3.sum(center, Vector3.one().scale(radius)),
+                Vector3.sub(center, Vector3.one().scale(radius))
+        );
     }
 
     @Override
@@ -98,6 +108,9 @@ public class Sphere extends AbstractModel {
 
     @Override
     public Hit intersect(Ray ray) {
+        if (!boundBox.intersect(ray)) {
+            return null;
+        }
         Vector3 l = Vector3.sub(center, ray.origin);
         float tca = l.dot(ray.direction);
         if (tca < 0) return null;
