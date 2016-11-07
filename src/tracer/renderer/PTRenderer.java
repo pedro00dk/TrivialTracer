@@ -5,8 +5,8 @@ import tracer.data.base.Vector3;
 import tracer.data.trace.Hit;
 import tracer.data.trace.Ray;
 import tracer.data.visual.Color;
-import tracer.model.Model;
 import tracer.data.visual.Material;
+import tracer.model.Model;
 import tracer.scene.Camera;
 import tracer.scene.Display;
 import tracer.scene.Scene;
@@ -36,9 +36,9 @@ public class PTRenderer extends AbstractRenderer {
     }
 
     // Path tracing internal properties
-    private static final int PIXEL_SAMPLES = 60;
-    private static final int LIGHT_SAMPLES = 4;
-    private static final int MAX_RAY_DEPTH = 20;
+    private static final int PIXEL_SAMPLES = 40;
+    private static final int LIGHT_SAMPLES = 3;
+    private static final int MAX_RAY_DEPTH = 3;
     //
     private static final float ORIGIN_BIAS = 1e-4f;
     //
@@ -65,6 +65,7 @@ public class PTRenderer extends AbstractRenderer {
                 ).normalize();
                 frontBuffer[x + y * width] = renderPixel(new Ray(rayOrigin, rayDirection)).getIntValue();
             }
+            System.out.println("column " + x);
             display.flush(); // flushes each column
         }
     }
@@ -78,8 +79,8 @@ public class PTRenderer extends AbstractRenderer {
             color.y += pixelColor.getG();
             color.z += pixelColor.getB();
         }
-        float intensity = color.x * 0.3f + color.y * 0.58f + color.z * 0.12f;
-        //color.scale(1 / (intensity + 1));
+        float intensity = color.x * 0.333f + color.y * 0.333f + color.z * 0.333f;
+        color.scale(1 / (intensity + 0.45f));
         return new Color(color.x, color.y, color.z);
     }
 
@@ -153,7 +154,7 @@ public class PTRenderer extends AbstractRenderer {
 
         if (modelMaterial.getPropagation() > 0 && rayType < modelMaterial.getPropagation()) {
             // Propagation contribution
-            Vector3 propagationRayDirection = TTRand.onUniformHemisphere(hit.normal);
+            Vector3 propagationRayDirection = calculateRayPropagation(hit.normal);
             Vector3 propagationRayOrigin = Vector3.orientate(hit.point, hit.normal, ORIGIN_BIAS);
             propagationContribution = traceRay(new Ray(propagationRayOrigin, propagationRayDirection), rayDepth + 1);
             propagationContribution.scale(modelMaterial.getPropagation() / kMax);

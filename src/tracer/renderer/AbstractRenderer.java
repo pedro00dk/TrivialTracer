@@ -9,9 +9,9 @@ import tracer.model.Model;
 import tracer.scene.Camera;
 import tracer.scene.Display;
 import tracer.scene.Scene;
+import tracer.util.TTRand;
 
 import java.util.Objects;
-import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -288,16 +288,10 @@ public abstract class AbstractRenderer implements Renderer {
      * Returns a random point the the hemisphare oriented by the received vector.
      *
      * @param orientation the hemisphere orientation
-     * @param prng        the prng used to generate the point
      * @return the point in the hemisphere
      */
-    protected Vector3 calculateRandomDirectionInOrientedHemisphere(Vector3 orientation, Random prng) {
-        float longitude = 2 * (float) Math.PI * prng.nextFloat();
-        float latitude = (float) Math.acos(2 * prng.nextFloat() - 1) / 2;
-        return Matrix4.rotationBetween(Vector3.forward(), orientation).transformAsDirection(new Vector3(
-                (float) (Math.sin(latitude) * Math.cos(longitude)),
-                (float) (Math.sin(latitude) * Math.sin(longitude)),
-                (float) (Math.cos(latitude))));
+    protected Vector3 calculateRayPropagation(Vector3 orientation) {
+        return TTRand.onUniformHemisphere(orientation);
     }
 
     /**
@@ -320,7 +314,6 @@ public abstract class AbstractRenderer implements Renderer {
      * @return the refracted direction
      */
     protected Vector3 calculateRayRefraction(Vector3 direction, Vector3 normal, float refractiveIndex) {
-
         float externalCosine = direction.dot(Vector3.negate(normal));
         float internalSquaredSine = refractiveIndex * refractiveIndex * (1 - externalCosine * externalCosine);
         float internalCosine = 1 - internalSquaredSine;

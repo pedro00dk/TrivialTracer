@@ -66,7 +66,7 @@ public class Main {
         frame.setSize(700, 700);
         frame.add((JDisplay) display);
 
-        Renderer renderer = new PTRenderer(scene, camera, display, Main::frameUpdateConsumer);
+        Renderer renderer = new MTRenderer(new PTRenderer(scene, camera, display, Main::frameUpdateConsumer), 8);
         renderer.start();
 
         frame.setVisible(true);
