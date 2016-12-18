@@ -117,7 +117,7 @@ public class Sphere extends AbstractModel {
     public Vector3[] getSurfacePoints(int count) {
         Vector3[] surfacePoints = new Vector3[count];
         for (int i = 0; i < count; i++) {
-            surfacePoints[i] = this.surfacePoints[TTRand.range(0, count)];
+            surfacePoints[i] = this.surfacePoints[TTRand.range(0, this.surfacePoints.length - 1)];
         }
         return surfacePoints;
     }
