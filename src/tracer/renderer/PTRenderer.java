@@ -35,14 +35,6 @@ public class PTRenderer extends AbstractRenderer {
         super(scene, camera, display, frameUpdate);
     }
 
-    // Path tracing internal properties
-    private static final int PIXEL_SAMPLES = 40;
-    private static final int LIGHT_SAMPLES = 3;
-    private static final int MAX_RAY_DEPTH = 3;
-    //
-    private static final float ORIGIN_BIAS = 1e-4f;
-    //
-
     @Override
     protected void renderFrame() {
         int width = display.getDisplayWidth();
@@ -69,6 +61,14 @@ public class PTRenderer extends AbstractRenderer {
             display.flush(); // flushes each column
         }
     }
+
+    // Path tracing internal properties
+    private static final int PIXEL_SAMPLES = 100;
+    private static final int LIGHT_SAMPLES = 6;
+    private static final int MAX_RAY_DEPTH = 6;
+    //
+    private static final float ORIGIN_BIAS = 1e-4f;
+    //
 
     @Override
     protected Color renderPixel(Ray ray) {
@@ -150,7 +150,7 @@ public class PTRenderer extends AbstractRenderer {
         }
 
         // Random ray path
-        float rayType = TTRand.value() * kMax;
+        float rayType = TTRand.floatValue() * kMax;
 
         if (modelMaterial.getPropagation() > 0 && rayType < modelMaterial.getPropagation()) {
             // Propagation contribution

@@ -24,11 +24,20 @@ public class TTRand {
     }
 
     /**
-     * Returns (approximately) uniformly distributed random values between 0 (inclusive) and 1 (inclusive).
+     * Returns (approximately) uniformly distributed random values between -2^31 and 2^31.
      *
      * @return a random value
      */
-    public static float value() {
+    public static int intValue() {
+        return PRNG.nextInt();
+    }
+
+    /**
+     * Returns (approximately) uniformly distributed random values between 0 and 1.
+     *
+     * @return a random value
+     */
+    public static float floatValue() {
         return PRNG.nextFloat();
     }
 

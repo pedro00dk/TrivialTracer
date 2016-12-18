@@ -98,8 +98,8 @@ public class Triangle extends AbstractModel {
         );
         surfacePoints = new Vector3[SURFACE_POINTS_COUNT];
         for (int i = 0; i < SURFACE_POINTS_COUNT; i++) {
-            float random1 = TTRand.value();
-            float random2 = TTRand.value();
+            float random1 = TTRand.floatValue();
+            float random2 = TTRand.floatValue();
             if (random1 + random2 > 1) {
                 random1 = 1 - random1;
                 random2 = 1 - random2;

@@ -34,7 +34,7 @@ public class RTRenderer extends AbstractRenderer {
     }
 
     // Ray tracing internal properties
-    private static final int MAX_RAY_DEPTH = 8;
+    private static final int MAX_RAY_DEPTH = 6;
     //
     private static final float ORIGIN_BIAS = 1e-4f;
     //
