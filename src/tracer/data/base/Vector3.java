@@ -101,6 +101,16 @@ public class Vector3 implements Copyable<Vector3> {
     // Data operations
 
     /**
+     * Returns in the magnitude of this vector is equals to zero. This method is faster than use {@link #mag()} or
+     * {@link #sqrMag()} methods.
+     *
+     * @return is the size of this vector is zero.
+     */
+    public boolean zeroMag() {
+        return x == 0 && y == 0 && z == 0;
+    }
+
+    /**
      * Returns the magnitude of this vector. Verify if is possible use the {@link #sqrMag()} instead this method,
      * because is more faster. This method calls the {@link #sqrMag()} method.
      *

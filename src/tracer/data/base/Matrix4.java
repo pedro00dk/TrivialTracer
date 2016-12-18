@@ -2,6 +2,7 @@ package tracer.data.base;
 
 import tracer.util.Copyable;
 
+import java.text.DecimalFormat;
 import java.util.Arrays;
 
 /**
@@ -89,8 +90,8 @@ public class Matrix4 implements Copyable<Matrix4> {
     }
 
     /**
-     * This constructor allows create a matrix from the received array data. It's unsafe and only can be used in this
-     * class.
+     * This constructor allows create a matrix from the received array data. It's unsafe and only can be used inside of
+     * this class.
      *
      * @param data the matrix data
      */
@@ -114,10 +115,17 @@ public class Matrix4 implements Copyable<Matrix4> {
 
     @Override
     public String toString() {
-        return "|" + data[0] + ", " + data[1] + ", " + data[2] + ", " + data[3] + "|\n"
-                + "|" + data[4] + ", " + data[5] + ", " + data[6] + ", " + data[7] + "|\n"
-                + "|" + data[8] + ", " + data[9] + ", " + data[10] + ", " + data[11] + "|\n"
-                + "|" + data[12] + ", " + data[13] + ", " + data[14] + ", " + data[15] + "|";
+        DecimalFormat df = new DecimalFormat();
+        df.setMaximumFractionDigits(3);
+        df.setMaximumFractionDigits(3);
+        return "|" + df.format(data[0]) + ", " + df.format(data[1]) +
+                ", " + df.format(data[2]) + ", " + df.format(data[3]) + "|\n" +
+                "|" + df.format(data[4]) + ", " + df.format(data[5]) +
+                ", " + df.format(data[6]) + ", " + df.format(data[7]) + "|\n" +
+                "|" + df.format(data[8]) + ", " + df.format(data[9]) +
+                ", " + df.format(data[10]) + ", " + df.format(data[11]) + "|\n" +
+                "|" + df.format(data[12]) + ", " + df.format(data[13]) +
+                ", " + df.format(data[14]) + ", " + df.format(data[15]) + "|";
     }
 
     @Override
@@ -145,7 +153,7 @@ public class Matrix4 implements Copyable<Matrix4> {
      * @throws IndexOutOfBoundsException if the line is less than 0 or greater than 3 depending of the column value
      */
     public float get(int line, int column) {
-        int index = line * 4 + column;
+        int index = line * DIM_SIZE + column;
         return data[index];
     }
 
@@ -172,7 +180,7 @@ public class Matrix4 implements Copyable<Matrix4> {
      * @throws IndexOutOfBoundsException if the line is less than 0 or greater than 3 depending of the column value
      */
     public Matrix4 set(float v, int line, int column) {
-        int index = line * 4 + column;
+        int index = line * DIM_SIZE + column;
         data[index] = v;
         return this;
     }
@@ -221,12 +229,12 @@ public class Matrix4 implements Copyable<Matrix4> {
     }
 
     /**
-     * This method allows set the matrix data from the received array data. It's unsafe and only can be used in this
-     * package.
+     * This method allows set the matrix data from the received array data. It's unsafe and only can be used inside of
+     * this class.
      *
      * @param data the matrix data
      */
-    Matrix4 set(float[] data) {
+    private Matrix4 set(float[] data) {
         this.data = data;
         return this;
     }
@@ -504,10 +512,10 @@ public class Matrix4 implements Copyable<Matrix4> {
         aux = data[lineArrayIndex1 + 1];
         data[lineArrayIndex1 + 1] = data[lineArrayIndex2 + 1];
         data[lineArrayIndex2 + 1] = aux;
-        aux = data[lineArrayIndex1 + 1];
+        aux = data[lineArrayIndex1 + 2];
         data[lineArrayIndex1 + 2] = data[lineArrayIndex2 + 1];
         data[lineArrayIndex2 + 2] = aux;
-        aux = data[lineArrayIndex1 + 1];
+        aux = data[lineArrayIndex1 + 3];
         data[lineArrayIndex1 + 3] = data[lineArrayIndex2 + 1];
         data[lineArrayIndex2 + 3] = aux;
     }
