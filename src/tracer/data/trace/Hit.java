@@ -6,7 +6,7 @@ import tracer.model.Model;
 
 /**
  * Represents a hit information about a ray casting in a model. Instances of this class should only be created when a
- * hit happens. The objects of this class has little life time (as the Ray class),  so the access to the fields are
+ * hit happens. The objects of this class has little life time (as the Ray class), so the access to the fields are
  * public, be careful with null fields and improper modifications.
  *
  * @author Pedro Henrique

@@ -7,6 +7,7 @@ import tracer.data.base.Vector3;
  * of the objects of this class, the access can be done directly in the instance fields.
  *
  * @author Pedro Henrique
+ * @see Hit
  */
 public class Ray {
 
