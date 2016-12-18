@@ -56,10 +56,10 @@ public class Mesh extends AbstractModel {
         for (int i = 0; i < triangles.length; i++) {
             Objects.requireNonNull(triangles[i], "The triangles can not contains null elements.");
             this.triangles[i] = (Triangle) triangles[i].copy();
-            this.triangles[i].setMaterial(material);
             minVector.min(this.triangles[i].vertex0).min(this.triangles[i].vertex1).min(this.triangles[i].vertex2);
             maxVector.max(this.triangles[i].vertex0).max(this.triangles[i].vertex1).max(this.triangles[i].vertex2);
         }
+        setMaterial(material);
         boundBox = new BoundBox(
                 minVector.sub(Vector3.one().scale(BOUND_SCALE)),
                 maxVector.sum(Vector3.one().scale(BOUND_SCALE))
@@ -69,6 +69,15 @@ public class Mesh extends AbstractModel {
     @Override
     public Model copy() {
         return new Mesh(triangles, material);
+    }
+
+    @Override
+    public Model setMaterial(Material material) {
+        super.setMaterial(material);
+        for (Triangle triangle : triangles) {
+            triangle.setMaterial(material);
+        }
+        return this;
     }
 
     @Override
@@ -102,6 +111,9 @@ public class Mesh extends AbstractModel {
             if (nearestHit == null || (hit != null && hit.distance < nearestHit.distance)) {
                 nearestHit = hit;
             }
+        }
+        if (nearestHit != null) {
+            nearestHit.model = this;
         }
         return nearestHit;
     }
