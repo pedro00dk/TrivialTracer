@@ -19,17 +19,17 @@ public class Sphere extends AbstractModel {
     /**
      * The center of the sphere.
      */
-    private Vector3 center;
+    protected Vector3 center;
 
     /**
      * The radius of the sphere.
      */
-    private float radius;
+    protected float radius;
 
     /**
      * The model surface points.
      */
-    private Vector3[] surfacePoints;
+    protected Vector3[] surfacePoints;
 
     /**
      * The internal bound box of this model.

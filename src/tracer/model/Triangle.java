@@ -19,22 +19,22 @@ public class Triangle extends AbstractModel {
     /**
      * The first vertex of the triangle.
      */
-    private Vector3 vertex0;
+    protected Vector3 vertex0;
 
     /**
      * The second vertex of the triangle.
      */
-    private Vector3 vertex1;
+    protected Vector3 vertex1;
 
     /**
      * The third vertex of the triangle.
      */
-    private Vector3 vertex2;
+    protected Vector3 vertex2;
 
     /**
      * The model surface points.
      */
-    private Vector3[] surfacePoints;
+    protected Vector3[] surfacePoints;
 
     /**
      * The internal bound box of this model.
@@ -78,23 +78,13 @@ public class Triangle extends AbstractModel {
         this.vertex0 = Objects.requireNonNull(vertex0, "The triangle vertices can not be null.").copy();
         this.vertex1 = Objects.requireNonNull(vertex1, "The triangle vertices can not be null.").copy();
         this.vertex2 = Objects.requireNonNull(vertex2, "The triangle vertices can not be null.").copy();
+        Vector3 minVector = new Vector3(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY);
+        Vector3 maxVector = new Vector3(Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY);
+        minVector.min(this.vertex0).min(this.vertex1).min(this.vertex2);
+        maxVector.max(this.vertex0).max(this.vertex1).max(this.vertex2);
         boundBox = new BoundBox(
-                new Vector3(
-                        vertex0.x < vertex1.x ? vertex0.x < vertex2.x ? vertex0.x : vertex2.x
-                                : vertex1.x < vertex2.x ? vertex1.x : vertex2.x,
-                        vertex0.y < vertex1.y ? vertex0.y < vertex2.y ? vertex0.y : vertex2.y
-                                : vertex1.y < vertex2.y ? vertex1.y : vertex2.y,
-                        vertex0.z < vertex1.z ? vertex0.z < vertex2.z ? vertex0.z : vertex2.z
-                                : vertex1.z < vertex2.z ? vertex1.z : vertex2.z
-                ).sub(Vector3.one().scale(BOUND_SCALE)),
-                new Vector3(
-                        vertex0.x > vertex1.x ? vertex0.x > vertex2.x ? vertex0.x : vertex2.x
-                                : vertex1.x > vertex2.x ? vertex1.x : vertex2.x,
-                        vertex0.y > vertex1.y ? vertex0.y > vertex2.y ? vertex0.y : vertex2.y
-                                : vertex1.y > vertex2.y ? vertex1.y : vertex2.y,
-                        vertex0.z > vertex1.z ? vertex0.z > vertex2.z ? vertex0.z : vertex2.z
-                                : vertex1.z > vertex2.z ? vertex1.z : vertex2.z
-                ).sum(Vector3.one().scale(BOUND_SCALE))
+                minVector.sub(Vector3.one().scale(BOUND_SCALE)),
+                maxVector.sum(Vector3.one().scale(BOUND_SCALE))
         );
         surfacePoints = new Vector3[SURFACE_POINTS_COUNT];
         for (int i = 0; i < SURFACE_POINTS_COUNT; i++) {
