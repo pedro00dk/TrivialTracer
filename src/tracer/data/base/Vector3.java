@@ -479,6 +479,32 @@ public class Vector3 implements Copyable<Vector3> {
         return this;
     }
 
+    /**
+     * Sets the smallest values of x, y, and z of this and the received vectors in this vector.
+     *
+     * @param other the vector with the values to compare and set
+     * @return a vector with the smallest values per coordinate between this and the received vectors
+     */
+    public Vector3 min(Vector3 other) {
+        x = x < other.x ? x : other.x;
+        y = y < other.y ? y : other.y;
+        z = z < other.z ? z : other.z;
+        return this;
+    }
+
+    /**
+     * Sets the greatest values of x, y, and z of this and the received vectors in this vector.
+     *
+     * @param other the vector with the values to compare and set
+     * @return a vector with the greatest values per coordinate between this and the received vectors
+     */
+    public Vector3 max(Vector3 other) {
+        x = x > other.x ? x : other.x;
+        y = y > other.y ? y : other.y;
+        z = z > other.z ? z : other.z;
+        return this;
+    }
+
     // Static vector operations
 
     /**
@@ -622,6 +648,32 @@ public class Vector3 implements Copyable<Vector3> {
      */
     public static Vector3 orientate(Vector3 v1, Vector3 v2, float s) {
         return v1.copy().orientate(v2, s);
+    }
+
+    /**
+     * This method has the same behaviour of the instance method {@link #min(Vector3)}, but does not modify the
+     * received vectors.
+     *
+     * @param v1 the vector to compare and set
+     * @param v2 the vector to compare and set
+     * @return the vector with the smallest values of the first and second vectors
+     * @see #min(Vector3)
+     */
+    public static Vector3 min(Vector3 v1, Vector3 v2) {
+        return v1.copy().min(v2);
+    }
+
+    /**
+     * This method has the same behaviour of the instance method {@link #max(Vector3)}, but does not modify the
+     * received vectors.
+     *
+     * @param v1 the vector to compare and set
+     * @param v2 the vector to compare and set
+     * @return the vector with the greatest values of the first and second vectors
+     * @see #max(Vector3)
+     */
+    public static Vector3 max(Vector3 v1, Vector3 v2) {
+        return v1.copy().max(v2);
     }
 
     // Static default vectors
