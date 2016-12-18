@@ -1,4 +1,4 @@
-package tracer.model.bound;
+package tracer.model.bounds;
 
 import tracer.data.base.Vector3;
 import tracer.data.trace.Ray;
@@ -11,6 +11,10 @@ import tracer.data.trace.Ray;
  * @author Pedro Henrique
  */
 public class BoundBox {
+
+
+    // This parameter is used to help intersection checks.
+    private static final float EPSILON = 1e-8f;
 
     /**
      * The minimum distance values of the x, y and z planes.
@@ -83,6 +87,6 @@ public class BoundBox {
         }
         float t0 = txMin > tyMin ? txMin > tzMin ? txMin : tzMin : tyMin > tzMin ? tyMin : tzMin;
         float t1 = txMax < tyMax ? txMax < tyMax ? txMax : tyMax : tyMax < tzMax ? tyMax : tzMax;
-        return (t0 < t1 && t1 > 1e-8f);
+        return (t0 < t1 && t1 > EPSILON);
     }
 }

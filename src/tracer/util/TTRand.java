@@ -33,7 +33,19 @@ public class TTRand {
     }
 
     /**
-     * Returns (approximately) uniformly distributed random values between the received minimum and maximum values.
+     * Returns (approximately) uniformly distributed random int values between the received minimum and maximum values.
+     *
+     * @param min the minimum value (inclusive)
+     * @param max the maximum values (inclusive)
+     * @return the generated value
+     */
+    public static int range(int min, int max) {
+        return PRNG.nextInt(max - min + 1) + min;
+    }
+
+    /**
+     * Returns (approximately) uniformly distributed random float values between the received minimum and maximum
+     * values.
      *
      * @param min the minimum value (inclusive)
      * @param max the maximum values (inclusive)

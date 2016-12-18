@@ -22,7 +22,7 @@ public abstract class AbstractModel implements Model {
     /**
      * Creates the model with the default material.
      */
-    public AbstractModel() {
+    protected AbstractModel() {
         this(DEFAULT_MATERIAL);
     }
 
@@ -31,7 +31,7 @@ public abstract class AbstractModel implements Model {
      *
      * @param material the model material
      */
-    public AbstractModel(Material material) {
+    protected AbstractModel(Material material) {
         this.material = Objects.requireNonNull(material, "The model material can not be null.").copy();
     }
 

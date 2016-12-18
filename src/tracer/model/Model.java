@@ -17,6 +17,14 @@ import tracer.util.Copyable;
 public interface Model extends Copyable<Model> {
 
     /**
+     * Returns the center of the model (depends of the implementation, should be specified in the override method), the
+     * returned center is independent of the model, if modified, the model will not be modified.
+     *
+     * @return the center of the model
+     */
+    Vector3 getCenter();
+
+    /**
      * Returns aleatory surface points with uniform probability of the model, if the count is less than 1, a zero sized
      * vector array is returned.
      *

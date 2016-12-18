@@ -4,10 +4,10 @@ import tracer.data.base.Vector3;
 import tracer.data.trace.Hit;
 import tracer.data.trace.Ray;
 import tracer.data.visual.Material;
-import tracer.model.bound.BoundBox;
+import tracer.model.bounds.BoundBox;
+import tracer.util.TTRand;
 
 import java.util.Objects;
-import java.util.Random;
 
 /**
  * Simple triangle {@link Model} implementation, contains triangle vertices and normals.
@@ -32,9 +32,26 @@ public class Triangle extends AbstractModel {
     private Vector3 vertex2;
 
     /**
+     * The model surface points.
+     */
+    private Vector3[] surfacePoints;
+
+    /**
      * The internal bound box of this model.
      */
     private BoundBox boundBox;
+
+    // This parameter is used to help intersection checks.
+    private static final float BOUND_SCALE = 1e-4f;
+
+    // The number of points in the surface of the model
+    private static final int SURFACE_POINTS_COUNT = 1000;
+
+    /*
+     * The constant used to ignore intersections when the inclination between the ray direction and the triangle normal
+     * is next to 90 degrees.
+     */
+    private static final float EPSILON = 1e-4f;
 
     /**
      * Creates the triangle with the received vertices (should not be null). The triangles is created with the default
@@ -69,7 +86,7 @@ public class Triangle extends AbstractModel {
                                 : vertex1.y < vertex2.y ? vertex1.y : vertex2.y,
                         vertex0.z < vertex1.z ? vertex0.z < vertex2.z ? vertex0.z : vertex2.z
                                 : vertex1.z < vertex2.z ? vertex1.z : vertex2.z
-                ).sub(Vector3.one().scale(1e-4f)),
+                ).sub(Vector3.one().scale(BOUND_SCALE)),
                 new Vector3(
                         vertex0.x > vertex1.x ? vertex0.x > vertex2.x ? vertex0.x : vertex2.x
                                 : vertex1.x > vertex2.x ? vertex1.x : vertex2.x,
@@ -77,22 +94,12 @@ public class Triangle extends AbstractModel {
                                 : vertex1.y > vertex2.y ? vertex1.y : vertex2.y,
                         vertex0.z > vertex1.z ? vertex0.z > vertex2.z ? vertex0.z : vertex2.z
                                 : vertex1.z > vertex2.z ? vertex1.z : vertex2.z
-                ).sum(Vector3.one().scale(1e-4f))
+                ).sum(Vector3.one().scale(BOUND_SCALE))
         );
-    }
-
-    @Override
-    public Model copy() {
-        return new Triangle(vertex0.copy(), vertex1.copy(), vertex2.copy(), material.copy());
-    }
-
-    @Override
-    public Vector3[] getSurfacePoints(int count) {
-        Random prng = new Random();
-        Vector3[] surfacePoints = new Vector3[count];
-        for (int i = 0; i < count; i++) {
-            float random1 = prng.nextFloat();
-            float random2 = prng.nextFloat();
+        surfacePoints = new Vector3[SURFACE_POINTS_COUNT];
+        for (int i = 0; i < SURFACE_POINTS_COUNT; i++) {
+            float random1 = TTRand.value();
+            float random2 = TTRand.value();
             if (random1 + random2 > 1) {
                 random1 = 1 - random1;
                 random2 = 1 - random2;
@@ -102,14 +109,31 @@ public class Triangle extends AbstractModel {
                     .sum(Vector3.scale(vertex1, random1))
                     .sum(Vector3.scale(vertex2, random2));
         }
-        return surfacePoints;
+    }
+
+    @Override
+    public Model copy() {
+        return new Triangle(vertex0.copy(), vertex1.copy(), vertex2.copy(), material.copy());
     }
 
     /**
-     * The constant used to ignore intersections when the inclination between the ray direction and the triangle normal
-     * is next to 90 degrees.
+     * Returns the centroid of this triangle.
+     *
+     * @return the center of the triangle
      */
-    private static final float K_EPSILON = 1e-4f;
+    @Override
+    public Vector3 getCenter() {
+        return Vector3.zero().sum(vertex0).sum(vertex1).sum(vertex2).scale(1f / 3f);
+    }
+
+    @Override
+    public Vector3[] getSurfacePoints(int count) {
+        Vector3[] surfacePoints = new Vector3[count];
+        for (int i = 0; i < count; i++) {
+            surfacePoints[i] = surfacePoints[TTRand.range(0, count)];
+        }
+        return surfacePoints;
+    }
 
     @Override
     public Hit intersect(Ray ray) {
@@ -119,7 +143,7 @@ public class Triangle extends AbstractModel {
         Vector3 planeNormal = Vector3.cross(Vector3.sub(vertex2, vertex0), Vector3.sub(vertex1, vertex0)).normalize();
         float planeDistance = planeNormal.dot(vertex0);
         float denominator = planeNormal.dot(ray.direction);
-        if (denominator < K_EPSILON && denominator > -K_EPSILON) {
+        if (denominator < EPSILON && denominator > -EPSILON) {
             return null;
         }
         float rayDistance = -(planeNormal.dot(ray.origin) - planeDistance) / denominator;

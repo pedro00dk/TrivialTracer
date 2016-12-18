@@ -4,7 +4,7 @@ import tracer.data.base.Vector3;
 import tracer.data.trace.Hit;
 import tracer.data.trace.Ray;
 import tracer.data.visual.Material;
-import tracer.model.bound.BoundBox;
+import tracer.model.bounds.BoundBox;
 import tracer.util.TTRand;
 
 import java.util.Objects;
@@ -27,6 +27,11 @@ public class Sphere extends AbstractModel {
     private float radius;
 
     /**
+     * The model surface points.
+     */
+    private Vector3[] surfacePoints;
+
+    /**
      * The internal bound box of this model.
      */
     private BoundBox boundBox;
@@ -34,6 +39,9 @@ public class Sphere extends AbstractModel {
     // The default attributes of the spheres
     private static final Vector3 DEFAULT_CENTER = Vector3.zero();
     private static final float DEFAULT_RADIUS = 1;
+
+    // The number of points in the surface of the model
+    private static final int SURFACE_POINTS_COUNT = 1000;
 
     /**
      * Create the sphere in origin (0, 0, 0) with radius 1 and default material.
@@ -80,7 +88,6 @@ public class Sphere extends AbstractModel {
      * @param material the sphere material
      */
     public Sphere(Vector3 center, float radius, Material material) {
-        super(material);
         this.center = Objects.requireNonNull(center, "The center can not be null.").copy();
         if (radius <= 0) {
             throw new IllegalArgumentException("The radius should be greater than 0.");
@@ -90,6 +97,10 @@ public class Sphere extends AbstractModel {
                 Vector3.sum(center, Vector3.one().scale(radius)),
                 Vector3.sub(center, Vector3.one().scale(radius))
         );
+        surfacePoints = new Vector3[SURFACE_POINTS_COUNT];
+        for (int i = 0; i < SURFACE_POINTS_COUNT; i++) {
+            surfacePoints[i] = TTRand.onUniformSphere().scale(radius).sum(center);
+        }
     }
 
     @Override
@@ -98,10 +109,15 @@ public class Sphere extends AbstractModel {
     }
 
     @Override
+    public Vector3 getCenter() {
+        return center.copy();
+    }
+
+    @Override
     public Vector3[] getSurfacePoints(int count) {
         Vector3[] surfacePoints = new Vector3[count];
         for (int i = 0; i < count; i++) {
-            surfacePoints[i] = TTRand.onPolarSphere().scale(radius).sum(center);
+            surfacePoints[i] = this.surfacePoints[TTRand.range(0, count)];
         }
         return surfacePoints;
     }
