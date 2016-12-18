@@ -1,6 +1,7 @@
 package loader;
 
 import tracer.data.base.Vector3;
+import tracer.model.Mesh;
 import tracer.model.Model;
 import tracer.model.Triangle;
 
@@ -25,7 +26,7 @@ public final class OBJLoader {
     private OBJLoader() {
     }
 
-    public static List<Model> load(String objFilePath) throws IOException {
+    public static Model load(String objFilePath) throws IOException {
         Path path = Paths.get(objFilePath);
         if (!Files.exists(path)) {
             throw new IllegalArgumentException("The path does not exists.");
@@ -33,7 +34,7 @@ public final class OBJLoader {
             throw new IllegalArgumentException("The path is a directory.");
         }
         List<Vector3> vertices = new ArrayList<>();
-        List<Model> faces = new ArrayList<>();
+        List<Triangle> faces = new ArrayList<>();
         BufferedReader bufferedReader = Files.newBufferedReader(path);
         String line;
         while ((line = bufferedReader.readLine()) != null) {
@@ -55,6 +56,6 @@ public final class OBJLoader {
                     break;
             }
         }
-        return faces;
+        return new Mesh(faces.toArray(new Triangle[0]));
     }
 }

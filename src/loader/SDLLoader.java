@@ -2,8 +2,8 @@ package loader;
 
 import tracer.data.base.Vector3;
 import tracer.data.visual.Color;
-import tracer.model.Model;
 import tracer.data.visual.Material;
+import tracer.model.Model;
 import tracer.scene.Scene;
 
 import java.io.BufferedReader;
@@ -48,20 +48,18 @@ public final class SDLLoader {
                     break;
                 case "light":
                     String objLightFilePath = path.getParent().toString() + "\\" + parts[1];
-                    List<Model> lights = OBJLoader.load(objLightFilePath);
+                    Model light = OBJLoader.load(objLightFilePath);
 
                     Color emissiveColor = new Color(
                             Float.parseFloat(parts[2]), Float.parseFloat(parts[3]), Float.parseFloat(parts[4])
                     );
                     Material lightMaterial = new Material(emissiveColor);
-                    for (Model light : lights) {
-                        light.setMaterial(lightMaterial);
-                        scene.addModel(light);
-                    }
+                    light.setMaterial(lightMaterial);
+                    scene.addModel(light);
                     break;
                 case "object":
                     String objFilePath = path.getParent().toString() + "\\" + parts[1];
-                    List<Model> models = OBJLoader.load(objFilePath);
+                    Model model = OBJLoader.load(objFilePath);
 
                     Color surfaceColor = new Color(
                             Float.parseFloat(parts[2]), Float.parseFloat(parts[3]), Float.parseFloat(parts[4])
@@ -74,10 +72,8 @@ public final class SDLLoader {
                             Float.parseFloat(parts[8]),
                             Float.parseFloat(parts[9])
                     );
-                    for (Model model : models) {
-                        model.setMaterial(material);
-                        scene.addModel(model);
-                    }
+                    model.setMaterial(material);
+                    scene.addModel(model);
                     break;
             }
         }
