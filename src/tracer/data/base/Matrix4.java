@@ -269,6 +269,21 @@ public class Matrix4 implements Copyable<Matrix4> {
     }
 
     /**
+     * Multiplies this matrix (at right side) with the received {@link Vector4} returning the resultant vector.
+     *
+     * @param vector the vector to transform
+     * @return the transformed vector
+     */
+    public Vector4 rightTransform(Vector4 vector) {
+        return new Vector4(
+                data[0] * vector.x + data[4] * vector.y + data[8] * vector.z + data[12] * vector.w,
+                data[1] * vector.x + data[5] * vector.y + data[9] * vector.z + data[13] * vector.w,
+                data[2] * vector.x + data[6] * vector.y + data[10] * vector.z + data[14] * vector.w,
+                data[3] * vector.x + data[7] * vector.y + data[11] * vector.z + data[15] * vector.w
+        );
+    }
+
+    /**
      * Multiplies this matrix with the received {@link Vector3} returning the resultant vector, the last line of this
      * matrix is ignored and the 3 remaining elements of the last column are summed if the new vector after the
      * transform.
@@ -281,6 +296,22 @@ public class Matrix4 implements Copyable<Matrix4> {
                 data[0] * vector.x + data[1] * vector.y + data[2] * vector.z + data[3],
                 data[4] * vector.x + data[5] * vector.y + data[6] * vector.z + data[7],
                 data[8] * vector.x + data[9] * vector.y + data[10] * vector.z + data[11]
+        );
+    }
+
+    /**
+     * Multiplies this matrix (at right side) with the received {@link Vector3} returning the resultant vector, the last
+     * column of this matrix is ignored and the 3 remaining elements of the last line are summed if the new vector after
+     * the transform.
+     *
+     * @param vector the vector to transform
+     * @return the transformed vector
+     */
+    public Vector3 rightTransformAsPoint(Vector3 vector) {
+        return new Vector3(
+                data[0] * vector.x + data[4] * vector.y + data[8] * vector.z + data[12],
+                data[1] * vector.x + data[5] * vector.y + data[9] * vector.z + data[13],
+                data[2] * vector.x + data[6] * vector.y + data[10] * vector.z + data[14]
         );
     }
 

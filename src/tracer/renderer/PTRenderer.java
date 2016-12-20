@@ -63,9 +63,9 @@ public class PTRenderer extends AbstractRenderer {
     }
 
     // Path tracing internal properties
-    private static final int PIXEL_SAMPLES = 20;
-    private static final int LIGHT_SAMPLES = 4;
-    private static final int MAX_RAY_DEPTH = 4;
+    private static final int PIXEL_SAMPLES = 200;
+    private static final int LIGHT_SAMPLES = 8;
+    private static final int MAX_RAY_DEPTH = 8;
     //
     private static final float ORIGIN_BIAS = 1e-4f;
     //
@@ -74,7 +74,7 @@ public class PTRenderer extends AbstractRenderer {
     protected Color renderPixel(Ray ray) {
         Vector3 color = Vector3.zero();
         for (int i = 0; i < PIXEL_SAMPLES; i++) {
-            Color pixelColor = traceRay(ray, 0).scale(1.0f / PIXEL_SAMPLES);
+            Color pixelColor = traceRay(ray, 0).scale(1f / PIXEL_SAMPLES);
             color.x += pixelColor.getR();
             color.y += pixelColor.getG();
             color.z += pixelColor.getB();
@@ -91,84 +91,98 @@ public class PTRenderer extends AbstractRenderer {
      */
     protected Color traceRay(Ray ray, int rayDepth) {
 
+        Color rayColor = Color.black();
+        float raySignificance = 1;
+
         // Checks the ray depth
-        if (rayDepth == MAX_RAY_DEPTH) {
-            return scene.getBackgroundColor();
-        }
+        while (rayDepth <= MAX_RAY_DEPTH) {
 
-        // Intersection checking
-        Hit hit = castRay(ray);
+            // Checks the last level
+            if (rayDepth == MAX_RAY_DEPTH) {
+                rayColor.sum(Color.scale(scene.getBackgroundColor(), raySignificance));
+                break;
+            }
 
-        // If no one intersection happens
-        if (hit == null) {
-            return scene.getBackgroundColor();
-        }
+            // Intersection checking
+            Hit hit = castRay(ray);
 
-        // If an intersection happens
-        Material modelMaterial = hit.model.getMaterial(); // The hit model visual
-        float kMax = modelMaterial.getPropagation() + modelMaterial.getReflection() + modelMaterial.getRefraction();
-        Color emissionContribution = Color.black();
-        Color directLightContribution = Color.black();
-        Color propagationContribution = Color.black();
-        Color reflectionContribution = Color.black();
-        Color refractionContribution = Color.black();
+            // If no one intersection happens
+            if (hit == null) {
+                rayColor.sum(Color.scale(scene.getBackgroundColor(), raySignificance));
+                break;
+            }
 
-        // Check if is inside the model
-        boolean insideModel = false;
-        if (ray.direction.dot(hit.normal) > 0) {
-            hit.normal.negate();
-            insideModel = true;
-        }
+            // If an intersection happens
+            Material modelMaterial = hit.model.getMaterial(); // The hit model visual
+            float kMax = modelMaterial.getPropagation() + modelMaterial.getReflection() + modelMaterial.getRefraction();
 
-        // Emission light check (always happens if is emissive)
-        if (modelMaterial.isEmissive()) {
-            emissionContribution = modelMaterial.getEmissiveColor();
-        }
+            // Check if is inside the model
+            boolean insideModel = false;
+            if (ray.direction.dot(hit.normal) > 0) {
+                hit.normal.negate();
+                insideModel = true;
+            }
 
-        // Direct light check (always happens if has lights in the scene)
-        if (modelMaterial.getPropagation() > 0) {
-            for (Model light : scene.getLights()) {
-                if (!hit.model.equals(light) && light.getMaterial().isEmissive()) {
-                    for (Vector3 lightPoint : light.getSurfacePoints(LIGHT_SAMPLES)) {
-                        Vector3 shadowRayDirection = Vector3.sub(lightPoint, hit.point).normalize();
-                        Vector3 shadowRayOrigin = Vector3.orientate(hit.point, hit.normal, ORIGIN_BIAS);
-                        Hit shadowHit = castRay(new Ray(shadowRayOrigin, shadowRayDirection));
-                        if (shadowHit != null && shadowHit.model.equals(light)) {
-                            float emissionRate = shadowRayDirection.dot(hit.normal);
-                            directLightContribution.sum(Color.mul(
-                                    modelMaterial.getSurfaceColor(),
-                                    light.getMaterial().getEmissiveColor()
-                                    ).scale(emissionRate / LIGHT_SAMPLES)
-                            );
+            // Emission light check (always happens if is emissive)
+            if (modelMaterial.isEmissive()) {
+                rayColor.sum(Color.scale(modelMaterial.getEmissiveColor(), raySignificance));
+            }
+
+            // Direct light check (always happens if has lights in the scene)
+            if (modelMaterial.getPropagation() > 0) {
+                Color directLightContribution = Color.black();
+                for (Model light : scene.getLights()) {
+                    if (!hit.model.equals(light) && light.getMaterial().isEmissive()) {
+                        for (Vector3 lightPoint : light.getSurfacePoints(LIGHT_SAMPLES)) {
+                            Vector3 shadowRayDirection = Vector3.sub(lightPoint, hit.point).normalize();
+                            Vector3 shadowRayOrigin = Vector3.orientate(hit.point, hit.normal, ORIGIN_BIAS);
+                            Hit shadowHit = castRay(new Ray(shadowRayOrigin, shadowRayDirection));
+                            if (shadowHit != null && shadowHit.model.equals(light)) {
+                                float emissionRate = shadowRayDirection.dot(hit.normal);
+                                directLightContribution.sum(Color.mul(
+                                        modelMaterial.getSurfaceColor(),
+                                        light.getMaterial().getEmissiveColor()
+                                        ).scale(emissionRate / LIGHT_SAMPLES)
+                                );
+                            }
                         }
                     }
                 }
+                directLightContribution.scale(modelMaterial.getPropagation() / kMax);
+                rayColor.sum(Color.scale(directLightContribution, raySignificance));
             }
-            directLightContribution.scale(modelMaterial.getPropagation() / kMax);
-        }
 
-        // Random ray path
-        float rayType = TTRand.floatValue() * kMax;
+            // Random ray path
+            float rayType = TTRand.floatValue() * kMax;
 
-        if (modelMaterial.getPropagation() > 0 && rayType < modelMaterial.getPropagation()) {
-            // Propagation contribution
-            Vector3 propagationRayDirection = calculateRayPropagation(hit.normal);
-            Vector3 propagationRayOrigin = Vector3.orientate(hit.point, hit.normal, ORIGIN_BIAS);
-            propagationContribution = traceRay(new Ray(propagationRayOrigin, propagationRayDirection), rayDepth + 1);
-        } else if (modelMaterial.getReflection() > 0
-                && rayType < modelMaterial.getPropagation() + modelMaterial.getReflection()) {
-            // Specular contribution
-            Vector3 reflectionRayDirection = calculateRayReflection(ray.direction, hit.normal);
-            Vector3 reflectionRayOrigin = Vector3.orientate(hit.point, hit.normal, ORIGIN_BIAS);
-            reflectionContribution = traceRay(new Ray(reflectionRayOrigin, reflectionRayDirection), rayDepth + 1);
-        } else if (modelMaterial.getRefraction() > 0) {
-            // Transmission contribution
-            Vector3 refractionRayDirection
-                    = calculateRayRefraction(ray.direction, hit.normal, insideModel ? modelMaterial.getRefractiveIndex() : 1 / modelMaterial.getRefractiveIndex());
-            Vector3 refractionRayOrigin = Vector3.orientate(hit.point, hit.normal, -ORIGIN_BIAS);
-            refractionContribution = traceRay(new Ray(refractionRayOrigin, refractionRayDirection), rayDepth + 1);
+            if (modelMaterial.getPropagation() > 0 && rayType < modelMaterial.getPropagation()) {
+                // Propagation contribution
+                Vector3 propagationRayDirection = calculateRayPropagation(hit.normal);
+                Vector3 propagationRayOrigin = Vector3.orientate(hit.point, hit.normal, ORIGIN_BIAS);
+                ray = new Ray(propagationRayOrigin, propagationRayDirection);
+                raySignificance *= (modelMaterial.getPropagation() / kMax) * (propagationRayDirection.dot(hit.normal));
+            } else if (modelMaterial.getReflection() > 0
+                    && rayType < modelMaterial.getPropagation() + modelMaterial.getReflection()) {
+                // Specular contribution
+                Vector3 reflectionRayDirection = calculateRayReflection(ray.direction, hit.normal);
+                Vector3 reflectionRayOrigin = Vector3.orientate(hit.point, hit.normal, ORIGIN_BIAS);
+                ray = new Ray(reflectionRayOrigin, reflectionRayDirection);
+                raySignificance *= modelMaterial.getReflection() / kMax;
+            } else if (modelMaterial.getRefraction() > 0) {
+                // Transmission contribution
+                Vector3 refractionRayDirection
+                        = calculateRayRefraction(ray.direction, hit.normal, insideModel ? modelMaterial.getRefractiveIndex() : 1 / modelMaterial.getRefractiveIndex());
+                Vector3 refractionRayOrigin = Vector3.orientate(hit.point, hit.normal, -ORIGIN_BIAS);
+                ray = new Ray(refractionRayOrigin, refractionRayDirection);
+                raySignificance = modelMaterial.getRefraction() / kMax;
+            } else {
+                // Pure black opaque material
+                break;
+            }
+
+            // Increment rayDepth
+            rayDepth++;
         }
-        return Color.black().sum(emissionContribution).sum(directLightContribution).sum(propagationContribution)
-                .sum(reflectionContribution).sum(refractionContribution);
+        return rayColor;
     }
 }

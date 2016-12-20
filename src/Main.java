@@ -3,6 +3,8 @@ import tracer.data.base.Matrix4;
 import tracer.data.base.Vector3;
 import tracer.data.visual.Color;
 import tracer.model.Model;
+import tracer.renderer.MTRenderer;
+import tracer.renderer.PTRenderer;
 import tracer.renderer.RTRenderer;
 import tracer.renderer.Renderer;
 import tracer.scene.Camera;
@@ -30,7 +32,7 @@ public class Main {
         frame.setSize(700, 700);
         frame.add((JDisplay) display);
 
-        Renderer renderer = new RTRenderer(scene, camera, display, Main::frameUpdateConsumer);
+        Renderer renderer = new MTRenderer(new PTRenderer(scene, camera, display, Main::frameUpdateConsumer), 8);
         renderer.start();
 
         frame.setVisible(true);
@@ -44,7 +46,7 @@ public class Main {
                 ).transformAsPoint(cameraPosition)
         );
         for (Model light : r.getScene().getLights()) {
-            light.getMaterial().setEmissiveColor(Color.white().scale(TTRand.range(0.1f, 1)));
+            //light.getMaterial().setEmissiveColor(Color.white().scale(TTRand.range(0.1f, 1)));
         }
         System.out.println(r.getFrameRate());
 
