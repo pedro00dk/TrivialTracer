@@ -69,10 +69,11 @@ public class Material implements Copyable<Material> {
     /**
      * Creates the material with the received surface color and not emissive, and the received properties
      *
-     * @param surfaceColor the material surface color
-     * @param propagation  the propagation of the material (should be between than 0 and 1)
-     * @param reflection   the reflection of the material (should be between than 0 and 1)
-     * @param refraction   the refraction of the material (should be between than 0 and 1)
+     * @param surfaceColor    the material surface color
+     * @param propagation     the propagation of the material (should be between than 0 and 1)
+     * @param reflection      the reflection of the material (should be between than 0 and 1)
+     * @param refraction      the refraction of the material (should be between than 0 and 1)
+     * @param refractiveIndex the refractive index of the material (should be between 1 and 10)
      */
     public Material(Color surfaceColor, float propagation, float reflection, float refraction, float refractiveIndex) {
         this(surfaceColor, DEFAULT_EMISSIVE_COLOR, false, propagation, reflection, refraction, refractiveIndex);
