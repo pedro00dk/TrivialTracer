@@ -95,7 +95,7 @@ public class Mesh extends AbstractModel {
         for (int i = 0; i < count; i++) {
             int triangleIndex = TTRand.range(0, triangles.length - 1);
             Vector3[] triangleSurfacePoints = triangles[triangleIndex].surfacePoints;
-            surfacePoints[i] = surfacePoints[TTRand.range(0, triangleSurfacePoints.length - 1)];
+            surfacePoints[i] = triangleSurfacePoints[TTRand.range(0, triangleSurfacePoints.length - 1)];
         }
         return surfacePoints;
     }
