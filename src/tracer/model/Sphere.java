@@ -88,6 +88,7 @@ public class Sphere extends AbstractModel {
      * @param material the sphere material
      */
     public Sphere(Vector3 center, float radius, Material material) {
+        super(material);
         this.center = Objects.requireNonNull(center, "The center can not be null.").copy();
         if (radius <= 0) {
             throw new IllegalArgumentException("The radius should be greater than 0.");
