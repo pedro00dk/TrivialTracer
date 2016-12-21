@@ -127,39 +127,83 @@ public class Triangle extends AbstractModel {
 
     @Override
     public Hit intersect(Ray ray) {
+        //return insideOutsideIntersect(ray);
+        return mollerTrumboreIntersect(ray);
+    }
+
+    /**
+     * Calculates the intersection using the inside-outside algorithm.
+     *
+     * @param ray the ray to check intersection
+     * @return the hit information
+     */
+    private Hit insideOutsideIntersect(Ray ray) {
         if (!boundBox.intersect(ray)) {
             return null;
         }
-        Vector3 planeNormal = Vector3.cross(Vector3.sub(vertex2, vertex0), Vector3.sub(vertex1, vertex0)).normalize();
-        float planeDistance = planeNormal.dot(vertex0);
-        float denominator = planeNormal.dot(ray.direction);
+        Vector3 normal = Vector3.cross(Vector3.sub(vertex2, vertex0), Vector3.sub(vertex1, vertex0)).normalize();
+        float planeDistance = normal.dot(vertex0);
+        float denominator = normal.dot(ray.direction);
         if (denominator < EPSILON && denominator > -EPSILON) {
             return null;
         }
-        float rayDistance = -(planeNormal.dot(ray.origin) - planeDistance) / denominator;
-        if (rayDistance < 0) {
+        float distance = -(normal.dot(ray.origin) - planeDistance) / denominator;
+        if (distance < 0) {
             return null;
         }
-        Vector3 point = Vector3.orientate(ray.origin, ray.direction, rayDistance);
-        //
+        Vector3 point = Vector3.orientate(ray.origin, ray.direction, distance);
         Vector3 edge0 = Vector3.sub(vertex1, vertex0);
         Vector3 vp0 = Vector3.sub(point, vertex0);
         Vector3 c0 = Vector3.cross(vp0, edge0);
-        if (planeNormal.dot(c0) < 0) {
+        if (normal.dot(c0) < 0) {
             return null;
         }
         Vector3 edge1 = Vector3.sub(vertex2, vertex1);
         Vector3 vp1 = Vector3.sub(point, vertex1);
         Vector3 c1 = Vector3.cross(vp1, edge1);
-        if (planeNormal.dot(c1) < 0) {
+        if (normal.dot(c1) < 0) {
             return null;
         }
         Vector3 edge2 = Vector3.sub(vertex0, vertex2);
         Vector3 vp2 = Vector3.sub(point, vertex2);
         Vector3 c2 = Vector3.cross(vp2, edge2);
-        if (planeNormal.dot(c2) < 0) {
+        if (normal.dot(c2) < 0) {
             return null;
         }
-        return new Hit(this, ray, rayDistance, point, planeNormal, material.getSurfaceColor());
+        return new Hit(this, ray, distance, point, normal, material.getSurfaceColor());
+    }
+
+    /**
+     * Calculates the intersection using the Moller-Trumbore algorithm. This algorithm is faster and use less memory
+     * than {@link #insideOutsideIntersect(Ray)}.
+     *
+     * @param ray the ray to check intersection
+     * @return the hit information
+     */
+    private Hit mollerTrumboreIntersect(Ray ray) {
+        Vector3 edge1 = Vector3.sub(vertex1, vertex0);
+        Vector3 edge2 = Vector3.sub(vertex2, vertex0);
+        Vector3 p = Vector3.cross(ray.direction, edge2);
+        float determinant = edge1.dot(p);
+        if (determinant > -EPSILON && determinant < EPSILON) {
+            return null;
+        }
+        float inverseDeterminant = 1 / determinant;
+        Vector3 t = Vector3.sub(ray.origin, vertex0);
+        float u = t.dot(p) * inverseDeterminant;
+        if (u < 0 || u > 1) {
+            return null;
+        }
+        Vector3 q = Vector3.cross(t, edge1);
+        float v = ray.direction.dot(q) * inverseDeterminant;
+        if (v < 0 || u + v > 1) {
+            return null;
+        }
+        float rayDistance = edge2.dot(q) * inverseDeterminant;
+        if (rayDistance > EPSILON) { //ray intersection
+            return new Hit(this, ray, rayDistance, Vector3.orientate(ray.origin, ray.direction, rayDistance),
+                    Vector3.cross(edge2, edge1).normalize(), material.getSurfaceColor());
+        }
+        return null;
     }
 }

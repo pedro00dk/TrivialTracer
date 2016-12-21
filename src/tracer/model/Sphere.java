@@ -125,6 +125,11 @@ public class Sphere extends AbstractModel {
 
     @Override
     public Hit intersect(Ray ray) {
+        return geometricIntersect(ray);
+        //return analyticIntersect(ray);
+    }
+
+    private Hit geometricIntersect(Ray ray) {
         if (!boundBox.intersect(ray)) {
             return null;
         }
@@ -137,28 +142,72 @@ public class Sphere extends AbstractModel {
         float thc = (float) Math.sqrt(radius2 - d2);
         float t0 = tca - thc;
         float t1 = tca + thc;
-        float minT;
-        Vector3 hitPoint;
-        Vector3 hitNormal;
+        float distance;
         if (t0 < t1) {
             if (t0 >= 0) {
-                minT = t0;
+                distance = t0;
             } else if (t1 >= 0) {
-                minT = t1;
+                distance = t1;
             } else {
                 return null;
             }
         } else {
             if (t1 >= 0) {
-                minT = t1;
+                distance = t1;
             } else if (t0 >= 0) {
-                minT = t0;
+                distance = t0;
             } else {
                 return null;
             }
         }
-        hitPoint = Vector3.orientate(ray.origin, ray.direction, minT);
-        hitNormal = Vector3.sub(hitPoint, center).normalize();
-        return new Hit(this, ray, minT, hitPoint, hitNormal, material.getSurfaceColor());
+        Vector3 point = Vector3.orientate(ray.origin, ray.direction, distance);
+        Vector3 normal = Vector3.sub(point, center).normalize();
+        return new Hit(this, ray, distance, point, normal, material.getSurfaceColor());
+    }
+
+    private Hit analyticIntersect(Ray ray) {
+        // analytic solution
+        Vector3 L = Vector3.sub(ray.origin, center);
+        float a = ray.direction.sqrMag();
+        float b = 2 * ray.direction.dot(L);
+        float c = L.sqrMag() - radius * radius;
+        float rayDistance = analyticIntersectSolveQuadratic(a, b, c);
+        if (rayDistance != Float.NaN) {
+            Vector3 point = Vector3.orientate(ray.origin, ray.direction, rayDistance);
+            Vector3 normal = Vector3.sub(point, center).normalize();
+            return new Hit(this, ray, rayDistance, point, normal, material.getSurfaceColor());
+        }
+        return null;
+    }
+
+    private float analyticIntersectSolveQuadratic(float a, float b, float c) {
+        float sqrtDelta = b * b - 4 * a * c;
+        if (sqrtDelta < 0) {
+            return Float.NaN;
+        } else if (sqrtDelta == 0) {
+            float result = b / (2 * a);
+            if (result < 0) {
+                return Float.NaN;
+            }
+        } else {
+            float q = (b > 0) ? -0.5f * (b + (float) Math.sqrt(sqrtDelta)) : -0.5f * (b - (float) Math.sqrt(sqrtDelta));
+            float r1 = q / a;
+            float r2 = c / q;
+            if (r1 > r2) {
+                float aux = r1;
+                r1 = r2;
+                r2 = r1;
+            }
+            if (r1 >= 0) {
+                return r1;
+            } else {
+                if (r2 >= 0) {
+                    return r2;
+                } else {
+                    return Float.NaN;
+                }
+            }
+        }
+        return Float.NaN;
     }
 }
