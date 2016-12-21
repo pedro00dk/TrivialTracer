@@ -79,6 +79,16 @@ public class PTRenderer extends AbstractRenderer {
             pixelColor.g += rayColor.g;
             pixelColor.b += rayColor.b;
         }
+        float greaterComponent = pixelColor.r;
+        if (greaterComponent < pixelColor.g) {
+            greaterComponent = pixelColor.g;
+        }
+        if (greaterComponent < pixelColor.b) {
+            greaterComponent = pixelColor.b;
+        }
+        if (greaterComponent > 1) {
+            pixelColor.scale(1 / greaterComponent);
+        }
         return pixelColor;
     }
 
