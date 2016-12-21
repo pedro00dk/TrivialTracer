@@ -63,23 +63,23 @@ public class PTRenderer extends AbstractRenderer {
     }
 
     // Path tracing internal properties
-    private static final int PIXEL_SAMPLES = 200;
-    private static final int LIGHT_SAMPLES = 8;
-    private static final int MAX_RAY_DEPTH = 8;
+    private static final int PIXEL_SAMPLES = 40;
+    private static final int LIGHT_SAMPLES = 4;
+    private static final int MAX_RAY_DEPTH = 4;
     //
     private static final float ORIGIN_BIAS = 1e-4f;
     //
 
     @Override
     protected Color renderPixel(Ray ray) {
-        Vector3 color = Vector3.zero();
+        Color pixelColor = Color.black();
         for (int i = 0; i < PIXEL_SAMPLES; i++) {
-            Color pixelColor = traceRay(ray, 0).scale(1f / PIXEL_SAMPLES);
-            color.x += pixelColor.getR();
-            color.y += pixelColor.getG();
-            color.z += pixelColor.getB();
+            Color rayColor = traceRay(ray, 0).scale(1f / PIXEL_SAMPLES);
+            pixelColor.r += rayColor.r;
+            pixelColor.g += rayColor.g;
+            pixelColor.b += rayColor.b;
         }
-        return new Color(color.x, color.y, color.z);
+        return pixelColor;
     }
 
     /**

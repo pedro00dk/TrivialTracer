@@ -70,6 +70,6 @@ public final class TTMath {
      * @return the resultant vector
      */
     public static Vector3 colorToVector(Color color) {
-        return new Vector3(color.getR(), color.getG(), color.getB());
+        return new Vector3(color.r, color.g, color.b);
     }
 }

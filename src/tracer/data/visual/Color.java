@@ -1,7 +1,6 @@
 package tracer.data.visual;
 
 import tracer.util.Copyable;
-import tracer.util.TTMath;
 
 /**
  * Represents a color with red, green and blue components.
@@ -23,17 +22,17 @@ public class Color implements Copyable<Color> {
     /**
      * The red component of this color.
      */
-    private float r;
+    public float r;
 
     /**
      * The green component of this color.
      */
-    private float g;
+    public float g;
 
     /**
      * The blue component of this color.
      */
-    private float b;
+    public float b;
 
     /**
      * Creates a color with 0 in all components (transparent black).
@@ -45,17 +44,16 @@ public class Color implements Copyable<Color> {
     }
 
     /**
-     * Creates a color with the received components, the components should be. between 0 and 1, if a component is less
-     * than 0 or greater than 1 the component will be clamped.
+     * Creates a color with the received components.
      *
      * @param r the red component value
      * @param g ths green component value
      * @param b the blue component value
      */
     public Color(float r, float g, float b) {
-        this.r = TTMath.clamp01(r);
-        this.g = TTMath.clamp01(g);
-        this.b = TTMath.clamp01(b);
+        this.r = r;
+        this.g = g;
+        this.b = b;
     }
 
     @Override
@@ -85,33 +83,6 @@ public class Color implements Copyable<Color> {
     }
 
     /**
-     * Gets the red component of this color.
-     *
-     * @return the red component
-     */
-    public float getR() {
-        return r;
-    }
-
-    /**
-     * Gets the green component of this color.
-     *
-     * @return the green component
-     */
-    public float getG() {
-        return g;
-    }
-
-    /**
-     * Gets the blue component of this color.
-     *
-     * @return the blue component
-     */
-    public float getB() {
-        return b;
-    }
-
-    /**
      * Returns an int value of color in the ARGB color system.
      *
      * @return the int value of the color
@@ -124,44 +95,7 @@ public class Color implements Copyable<Color> {
     }
 
     /**
-     * Sets the received red component value in this color. If the value is less than 0 or greater than 1 the value is
-     * clamped.
-     *
-     * @param r the red value
-     * @return this color updated
-     */
-    public Color setR(float r) {
-        this.r = TTMath.clamp01(r);
-        return this;
-    }
-
-    /**
-     * Sets the received green component value in this color. If the value is less than 0 or greater than 1 the value is
-     * clamped.
-     *
-     * @param g the green value
-     * @return this color updated
-     */
-    public Color setG(float g) {
-        this.g = TTMath.clamp01(g);
-        return this;
-    }
-
-    /**
-     * Sets the received blue component value in this color. If the value is less than 0 or greater than 1 the value is
-     * clamped.
-     *
-     * @param b the blue value
-     * @return this color updated
-     */
-    public Color setB(float b) {
-        this.b = TTMath.clamp01(b);
-        return this;
-    }
-
-    /**
-     * Sets the received values in the color and returns this color modified, if a component is less than 0 or greater
-     * than 1 the component will be clamped.
+     * Sets the received values in the color and returns this color modified.
      *
      * @param r the red component value
      * @param g the green component value
@@ -169,61 +103,59 @@ public class Color implements Copyable<Color> {
      * @return this color modified
      */
     public Color set(float r, float g, float b) {
-        this.r = TTMath.clamp01(r);
-        this.g = TTMath.clamp01(g);
-        this.b = TTMath.clamp01(b);
+        this.r = r;
+        this.g = g;
+        this.b = b;
         return this;
     }
 
     // Color operations
 
     /**
-     * Sums the received color in this and return this color modified. The received color is not modified, if a
-     * component is less than 0 or greater than 1 the component will be clamped.
+     * Sums the received color in this and return this color modified. The received color is not modified.
      *
      * @param other the color to sum with this
      * @return this color modified
      */
     public Color sum(Color other) {
-        r = TTMath.clamp01(r + other.r);
-        g = TTMath.clamp01(g + other.g);
-        b = TTMath.clamp01(b + other.b);
+        r = r + other.r;
+        g = g + other.g;
+        b = b + other.b;
         return this;
     }
 
     /**
-     * Subtracts the received color of this and return this color modified. The received color is not modified, if a
-     * component is less than 0 or greater than 1 the component will be clamped.
+     * Subtracts the received color of this and return this color modified. The received color is not modified.
      *
      * @param other the color to subtract from this
      * @return this color modified
      * @see #subI(Color)
      */
     public Color sub(Color other) {
-        r = TTMath.clamp01(r - other.r);
-        g = TTMath.clamp01(g - other.g);
-        b = TTMath.clamp01(b - other.b);
+        r = r - other.r;
+        g = g - other.g;
+        b = b - other.b;
         return this;
     }
 
     /**
      * Subtracts this color from the received (inverted subtraction), but saving in this. The received color is not
-     * modified, if a component is less than 0 or greater than 1 the component will be clamped.
+     * modified.
      *
      * @param other the color to be subtracted from this
      * @return this color modified
      * @see #sub(Color)
      */
     public Color subI(Color other) {
-        r = TTMath.clamp01(other.r - r);
-        g = TTMath.clamp01(other.g - g);
-        b = TTMath.clamp01(other.b - b);
+        r = other.r - r;
+        g = other.g - g;
+        b = other.b - b;
         return this;
     }
 
     /**
      * Multiplies each component of the received color with the components of this colors. The received color is not
-     * modified. The components are multiplied one by one. This operation does not need clamp the components.
+     * modified.
      *
      * @param other the color to multiply this
      * @return this color modified
@@ -237,17 +169,16 @@ public class Color implements Copyable<Color> {
     }
 
     /**
-     * Scales each component of this color with the received scalar, if a component is less than 0 or greater than 1
-     * the component will be clamped.
+     * Scales each component of this color with the received scalar.
      *
      * @param scalar the value to scale the components
      * @return the color scaled by the received scalar
      * @see #mul(Color)
      */
     public Color scale(float scalar) {
-        r = TTMath.clamp01(r * scalar);
-        g = TTMath.clamp01(g * scalar);
-        b = TTMath.clamp01(b * scalar);
+        r = r * scalar;
+        g = g * scalar;
+        b = b * scalar;
         return this;
     }
 
@@ -266,9 +197,9 @@ public class Color implements Copyable<Color> {
      * @return this color modified
      */
     public Color interpolate(Color other, float gradient) {
-        r = TTMath.clamp01(r * (1 - gradient) + other.r * gradient);
-        g = TTMath.clamp01(g * (1 - gradient) + other.g * gradient);
-        b = TTMath.clamp01(b * (1 - gradient) + other.b * gradient);
+        r = r * (1 - gradient) + other.r * gradient;
+        g = g * (1 - gradient) + other.g * gradient;
+        b = b * (1 - gradient) + other.b * gradient;
         return this;
     }
 
