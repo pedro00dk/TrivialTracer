@@ -1,5 +1,6 @@
 package tracer.renderer;
 
+import java.util.function.Consumer;
 import tracer.data.base.Matrix4;
 import tracer.data.base.Vector3;
 import tracer.data.trace.Hit;
@@ -11,8 +12,6 @@ import tracer.scene.Camera;
 import tracer.scene.Display;
 import tracer.scene.Scene;
 import tracer.util.TTRand;
-
-import java.util.function.Consumer;
 
 /**
  * Renderer implementation using the path tracer techniques.
@@ -57,7 +56,6 @@ public class PTRenderer extends AbstractRenderer {
                 ).normalize();
                 frontBuffer[x + y * width] = renderPixel(new Ray(rayOrigin, rayDirection)).getIntValue();
             }
-            System.out.println("column " + x);
             display.flush(); // flushes each column
         }
     }

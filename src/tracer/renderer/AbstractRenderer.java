@@ -1,5 +1,8 @@
 package tracer.renderer;
 
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import tracer.data.base.Matrix4;
 import tracer.data.base.Vector3;
 import tracer.data.trace.Hit;
@@ -10,11 +13,6 @@ import tracer.scene.Camera;
 import tracer.scene.Display;
 import tracer.scene.Scene;
 import tracer.util.TTRand;
-
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
-
 /**
  * Abstract Renderer implementation with the necessary objects and methods. Only the method {@link #renderPixel(Ray)}
  * needs to be implemented to the renderer work, but the method {@link #renderFrame()} too can be override.
@@ -144,6 +142,11 @@ public abstract class AbstractRenderer implements Renderer {
     @Override
     public void setFrameUpdate(Consumer<Renderer> frameUpdate) {
         this.frameUpdate = frameUpdate;
+    }
+    
+    @Override
+    public Consumer<Renderer> getFrameUpdate() {
+        return frameUpdate;
     }
 
     // Rendering thread methods

@@ -47,7 +47,7 @@ public final class SDLLoader {
                     ));
                     break;
                 case "light":
-                    String objLightFilePath = path.getParent().toString() + "\\" + parts[1];
+                    String objLightFilePath = path.getParent().toString() + "/" + parts[1];
                     Model light = OBJLoader.load(objLightFilePath);
 
                     Color emissiveColor = new Color(
@@ -58,7 +58,7 @@ public final class SDLLoader {
                     scene.addModel(light);
                     break;
                 case "object":
-                    String objFilePath = path.getParent().toString() + "\\" + parts[1];
+                    String objFilePath = path.getParent().toString() + "/" + parts[1];
                     Model model = OBJLoader.load(objFilePath);
 
                     Color surfaceColor = new Color(

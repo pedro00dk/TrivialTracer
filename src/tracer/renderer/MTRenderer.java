@@ -1,5 +1,6 @@
 package tracer.renderer;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import tracer.data.base.Matrix4;
 import tracer.data.base.Vector3;
 import tracer.data.trace.Ray;
@@ -7,9 +8,6 @@ import tracer.data.visual.Color;
 import tracer.scene.Camera;
 import tracer.scene.Display;
 import tracer.scene.Scene;
-
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 
 /**
  * @author Pedro Henrique
@@ -29,6 +27,7 @@ public class MTRenderer extends AbstractRenderer {
     public MTRenderer(AbstractRenderer internalRenderer, int numberOfThreads) {
         this.internalRenderer = internalRenderer;
         this.numberOfThreads = numberOfThreads;
+        setFrameUpdate(internalRenderer.getFrameUpdate());
     }
 
     @Override
@@ -59,11 +58,6 @@ public class MTRenderer extends AbstractRenderer {
     @Override
     public void setDisplay(Display display) {
         internalRenderer.setDisplay(display);
-    }
-
-    @Override
-    public void setFrameUpdate(Consumer<Renderer> frameUpdate) {
-        internalRenderer.setFrameUpdate(frameUpdate);
     }
 
     // Multi-threading attributes

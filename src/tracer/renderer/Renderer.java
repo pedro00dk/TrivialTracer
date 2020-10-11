@@ -1,10 +1,9 @@
 package tracer.renderer;
 
+import java.util.function.Consumer;
 import tracer.scene.Camera;
 import tracer.scene.Display;
 import tracer.scene.Scene;
-
-import java.util.function.Consumer;
 
 /**
  * The Renderer interface, any rendering algorithm should implement this interface.
@@ -61,6 +60,7 @@ public interface Renderer {
      * @param frameUpdate the received frame update consumer in the renderer.
      */
     void setFrameUpdate(Consumer<Renderer> frameUpdate);
+    Consumer<Renderer> getFrameUpdate();
 
     /**
      * Starts the thread that renders the frames. To stop, call the stop() method. If is already running throws an
